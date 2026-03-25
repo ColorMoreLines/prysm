@@ -3,1589 +3,920 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PRYSM — Analytics Dashboard</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>PRYSM 2.0 — v5</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+:root {
+  --green:     #004225;
+  --green-md:  #1a6b42;
+  --green-lt:  #6fcf97;
+  --accent-lt: #d4f1e1;
+  --red:       #d94040;
+  --red-lt:    #fdeaea;
+  --amber:     #e89b2a;
+  --blue:      #3b82f6;
+  --bg:        #f0f0eb;
+  --content-bg:#ffffff;
+  --sb-bg:     #ffffff;
+  --border:    #e5e5df;
+  --border-lt: #ededea;
+  --txt:       #111827;
+  --txt2:      #374151;
+  --muted:     #9ca3af;
+  --nav-hover: #eaf6ef;
+  --nav-act:   #e0f2e9;
+  --sw:        260px;
+  --r:         10px;
+  --sh:        0 1px 3px rgba(0,0,0,0.07),0 0 0 1px rgba(0,0,0,0.04);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--txt);display:flex;height:100vh;overflow:hidden;font-size:13px}
 
-  :root {
-    --green-900: #0D2B1A;
-    --green-800: #1A3D28;
-    --green-700: #1F4D30;
-    --green-600: #1B6B3A;
-    --green-500: #2D8653;
-    --green-400: #4CAF75;
-    --green-300: #6FCF97;
-    --green-200: #A8E6C0;
-    --green-100: #D4F1E1;
-    --green-50:  #F0FAF4;
-    --accent: #3ECF6E;
-    --accent-light: #B7F0CF;
-    --white: #FFFFFF;
-    --gray-50: #F8FAFB;
-    --gray-100: #F1F5F2;
-    --gray-200: #E2EAE5;
-    --gray-300: #C8D8CE;
-    --gray-400: #9BB5A5;
-    --gray-500: #6B8F7A;
-    --gray-600: #4A6657;
-    --gray-700: #2F4438;
-    --text-primary: #0D2B1A;
-    --text-secondary: #4A6657;
-    --text-muted: #7A9A8A;
-    --border: #E2EAE5;
-    --card-shadow: 0 1px 3px rgba(13,43,26,0.06), 0 1px 2px rgba(13,43,26,0.04);
-    --card-shadow-hover: 0 4px 12px rgba(13,43,26,0.1), 0 2px 4px rgba(13,43,26,0.06);
-    --sidebar-width: 220px;
-    --header-height: 60px;
-    --red: #E85555;
-    --red-light: #FDEAEA;
-    --amber: #F59E0B;
-    --amber-light: #FEF3C7;
-    --blue: #3B82F6;
-    --blue-light: #EFF6FF;
-  }
+/* ── SIDEBAR ── */
+.sb{width:var(--sw);background:var(--sb-bg);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;scrollbar-width:none}
+.sb::-webkit-scrollbar{display:none}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+/* Logo area */
+.sb-logo{padding:14px 16px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border-lt)}
+.logo-sq{width:34px;height:34px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:14px;font-weight:900;flex-shrink:0;letter-spacing:-.5px}
+.logo-name{font-size:16px;font-weight:900;color:var(--txt);letter-spacing:-.4px}
+.logo-ver{font-size:12px;font-weight:400;color:var(--muted);margin-left:3px}
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--gray-50);
-    color: var(--text-primary);
-    display: flex;
-    height: 100vh;
-    overflow: hidden;
-    font-size: 13px;
-  }
+/* Nav container */
+.nav{padding:8px 0 16px;flex:1}
 
-  /* ── SIDEBAR ── */
-  .sidebar {
-    width: var(--sidebar-width);
-    background: var(--green-900);
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-    overflow-y: auto;
-    scrollbar-width: none;
-  }
-  .sidebar::-webkit-scrollbar { display: none; }
+/* Executive Summary — standalone active link */
+.nav-link{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 16px;cursor:pointer;
+  font-size:13.5px;font-weight:700;color:var(--txt2);
+  transition:background .12s,color .12s;position:relative;
+  border-left:3px solid transparent;
+}
+.nav-link:hover{background:var(--nav-hover);color:var(--green)}
+.nav-link.active{background:var(--nav-act);color:var(--green);border-left-color:var(--green)}
+.nav-link svg{width:18px;height:18px;flex-shrink:0;stroke-width:1.6}
 
-  .sidebar-logo {
-    padding: 20px 16px 16px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-  }
-  .logo-mark {
-    font-size: 22px;
-    font-weight: 700;
-    color: white;
-    letter-spacing: -0.5px;
-    line-height: 1;
-  }
-  .logo-sub {
-    font-size: 9px;
-    color: rgba(255,255,255,0.4);
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    margin-top: 3px;
-  }
+/* Parent nav items (Sales, Adv, Financial…) */
+.nav-par{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 16px;cursor:pointer;
+  font-size:13.5px;font-weight:700;color:var(--txt2);
+  transition:background .12s,color .12s;user-select:none;
+  border-left:3px solid transparent;
+}
+.nav-par:hover{background:var(--nav-hover);color:var(--green)}
+.nav-par.open{color:var(--green)}
+.nav-par svg.ni{width:18px;height:18px;flex-shrink:0;stroke-width:1.6}
 
-  .nav-section { padding: 8px 0; }
+/* Chevron — rotates when open */
+.chev{
+  margin-left:auto;width:16px;height:16px;
+  transition:transform .25s ease;color:var(--muted);flex-shrink:0;
+}
+.nav-par.open .chev{transform:rotate(180deg);color:var(--green)}
+/* Also update icon sizes for Lucide 24x24 viewbox */
+.nav-link svg:not(.chev),.nav-par svg.ni{width:18px;height:18px;flex-shrink:0}
 
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    color: rgba(255,255,255,0.55);
-    cursor: pointer;
-    font-size: 12.5px;
-    font-weight: 400;
-    transition: all 0.15s;
-    border-radius: 0;
-    position: relative;
-  }
-  .nav-item:hover { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.06); }
-  .nav-item.active {
-    color: white;
-    background: rgba(62,207,110,0.15);
-    font-weight: 500;
-  }
-  .nav-item.active::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 3px;
-    background: var(--accent);
-    border-radius: 0 2px 2px 0;
-  }
-  .nav-item.parent {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.3);
-    padding: 12px 16px 4px;
-    cursor: default;
-  }
-  .nav-item.parent:hover { background: none; color: rgba(255,255,255,0.3); }
-  .nav-item svg { width: 14px; height: 14px; flex-shrink: 0; }
-  .nav-chevron { margin-left: auto; width: 12px; height: 12px; opacity: 0.4; }
-  .nav-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.3); flex-shrink: 0; margin-left: 3px; }
-  .nav-dot.active-dot { background: var(--accent); }
+/* Collapsible children */
+.nav-kids{overflow:hidden;max-height:0;transition:max-height .25s ease}
+.nav-kids.open{max-height:400px}
 
-  /* ── MAIN ── */
-  .main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
+/* Child items — indented, lighter weight */
+.nav-kid{
+  display:flex;align-items:center;
+  padding:7px 16px 7px 46px;
+  font-size:13px;font-weight:400;color:#6b7280;
+  cursor:pointer;transition:all .12s;
+  border-left:3px solid transparent;
+}
+.nav-kid:hover{color:var(--green);background:var(--nav-hover)}
+.nav-kid.active{color:var(--green);font-weight:600;background:var(--nav-act)}
 
-  .topbar {
-    height: var(--header-height);
-    background: white;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 24px;
-    flex-shrink: 0;
-  }
-  .topbar-left h1 { font-size: 16px; font-weight: 600; color: var(--text-primary); }
-  .topbar-left p { font-size: 11.5px; color: var(--text-muted); margin-top: 1px; }
-  .topbar-right { display: flex; align-items: center; gap: 12px; }
-  .topbar-icon {
-    width: 32px; height: 32px;
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; color: var(--gray-500);
-    transition: all 0.15s;
-  }
-  .topbar-icon:hover { background: var(--gray-100); color: var(--text-primary); }
-  .topbar-icon svg { width: 16px; height: 16px; }
-  .avatar {
-    width: 30px; height: 30px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--green-400), var(--green-600));
-    display: flex; align-items: center; justify-content: center;
-    color: white; font-size: 11px; font-weight: 600; cursor: pointer;
-  }
-  .badge-dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: var(--red); border: 1.5px solid white;
-    position: absolute; top: 6px; right: 6px;
-  }
-  .topbar-icon { position: relative; }
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.content{flex:1;overflow-y:auto;padding:0;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.page-top{background:var(--bg);padding:20px 28px 0;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+.page-body{padding:20px 28px 40px}
+.content::-webkit-scrollbar{width:5px}
+.content::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
+.page{display:none}
+.page.active{display:block;animation:fu .18s ease}
+@keyframes fu{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
 
-  /* ── CONTENT ── */
-  .content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px 24px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--gray-200) transparent;
-  }
+/* ── PAGE HEADER ── */
+.phdr{margin-bottom:16px}
+.phdr h1{font-size:22px;font-weight:900;color:var(--txt)}
+.phdr p{font-size:12.5px;color:var(--muted);margin-top:2px}
 
-  /* ── PAGES ── */
-  .page { display: none; }
-  .page.active { display: block; animation: fadeIn 0.2s ease; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+/* ── FILTER BAR ── */
+.fbar{display:flex;align-items:center;gap:0;margin-bottom:0;padding:12px 0 14px;flex-wrap:nowrap;overflow-x:auto}
 
-  /* ── FILTERS BAR ── */
-  .filters-bar {
-    display: flex; align-items: center; gap: 10px;
-    margin-bottom: 18px; flex-wrap: wrap;
-  }
-  .filter-select {
-    display: flex; align-items: center; gap: 6px;
-    padding: 0 12px; height: 34px;
-    border: 1px solid var(--border); border-radius: 8px;
-    background: white; color: var(--text-primary);
-    font-family: inherit; font-size: 12.5px; cursor: pointer;
-    min-width: 140px; transition: border-color 0.15s;
-  }
-  .filter-select:hover { border-color: var(--green-400); }
-  .filter-select select {
-    border: none; outline: none; background: transparent;
-    font-family: inherit; font-size: 12.5px; color: var(--text-primary);
-    cursor: pointer; flex: 1;
-  }
-  .filter-btn {
-    display: flex; align-items: center; gap: 6px;
-    padding: 0 12px; height: 34px;
-    border: 1px solid var(--border); border-radius: 8px;
-    background: white; color: var(--text-secondary);
-    font-family: inherit; font-size: 12.5px; cursor: pointer;
-    transition: all 0.15s; white-space: nowrap;
-  }
-  .filter-btn:hover { border-color: var(--green-400); color: var(--text-primary); }
-  .filter-btn svg { width: 13px; height: 13px; }
-  .filter-btn.primary {
-    background: var(--green-800); color: white; border-color: var(--green-800);
-  }
-  .filter-btn.primary:hover { background: var(--green-700); }
-  .filters-spacer { flex: 1; }
+/* ── FILTER LABELS ── */
+.fltr-lbl{font-size:10px;font-weight:900;color:#9ca3af;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;margin-left:20px;margin-right:8px;flex-shrink:0}
 
-  /* ── KPI CARDS ── */
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 10px;
-    margin-bottom: 18px;
-  }
-  .kpi-card {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px;
-    transition: all 0.2s;
-  }
-  .kpi-card:hover { box-shadow: var(--card-shadow-hover); border-color: var(--green-200); }
-  .kpi-icon {
-    width: 28px; height: 28px; border-radius: 7px;
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: 8px; font-size: 14px;
-  }
-  .kpi-label { font-size: 10.5px; color: var(--text-muted); font-weight: 500; margin-bottom: 3px; letter-spacing: 0.2px; }
-  .kpi-value { font-size: 15px; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
-  .kpi-value.mono { font-family: 'DM Mono', monospace; font-size: 14px; }
-  .kpi-delta {
-    font-size: 10.5px; font-weight: 500; margin-top: 3px;
-    display: flex; align-items: center; gap: 2px;
-  }
-  .kpi-delta.up { color: var(--green-500); }
-  .kpi-delta.down { color: var(--red); }
+/* ── CUSTOM DROPDOWN ── */
+.dd-wrap{position:relative;display:inline-flex;flex-shrink:0}
+.dd-wrap select{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:2;font-size:13px}
+.dd-btn{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 10px 0 12px;background:white;border:1px solid #d1d5db;border-radius:8px;white-space:nowrap;pointer-events:none}
+.dd-wrap:hover .dd-btn{border-color:#888}
+.dd-txt{font-family:'Lato',sans-serif;font-size:13px;font-weight:500;color:#111827}
 
-  /* ── CHARTS ── */
-  .chart-card {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 18px;
-    margin-bottom: 14px;
-  }
-  .chart-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 16px;
-  }
-  .chart-title {
-    font-size: 13px; font-weight: 600; color: var(--text-primary);
-    display: flex; align-items: center; gap: 6px;
-  }
-  .chart-title svg { width: 14px; height: 14px; color: var(--text-muted); }
-  .chart-meta { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
-  .chart-legend {
-    display: flex; align-items: center; gap: 14px;
-    font-size: 11px; color: var(--text-secondary);
-  }
-  .legend-dot {
-    width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px;
-  }
-  .chart-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-  .chart-grid-3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-  .chart-grid-3-map { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+/* ── DATE PICKER ── */
+.date-pick{position:relative;display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 10px 0 12px;background:white;border:1px solid #d1d5db;border-radius:8px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:border-color .15s}
+.date-pick:hover{border-color:#888}
+.date-pick input[type="date"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:2}
+.date-pick span{font-family:'Lato',sans-serif;font-size:13px;font-weight:500;color:#111827;pointer-events:none}
+.date-pick svg{pointer-events:none;flex-shrink:0}
 
-  .chart-container { position: relative; }
+/* ── CARD ── */
+.card{background:#ffffff;border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.05),0 0 0 1px rgba(0,0,0,0.04)}
+.card-title{font-size:13px;font-weight:900;color:var(--txt);margin-bottom:4px}
+.card-legend{display:flex;align-items:center;gap:12px;font-size:10.5px;color:var(--txt2);margin-bottom:10px;flex-wrap:wrap}
+.ld{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:3px}
 
-  /* ── MAP ── */
-  .map-placeholder {
-    height: 200px;
-    background: var(--gray-50);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--text-muted); font-size: 12px;
-    border: 1px dashed var(--border);
-    position: relative; overflow: hidden;
-  }
-  .map-svg { width: 100%; height: 100%; }
+/* ── GRIDS ── */
+.g7{display:grid;grid-template-columns:repeat(7,minmax(140px,1fr));gap:10px;margin-bottom:14px;overflow-x:auto}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+.g3m{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+.g3l{display:grid;grid-template-columns:1fr 2fr;gap:12px;margin-bottom:12px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.g2l{display:grid;grid-template-columns:1.4fr 1fr;gap:12px;margin-bottom:12px}
 
-  /* ── TABLE ── */
-  .data-table {
-    width: 100%; border-collapse: collapse; font-size: 11.5px;
-  }
-  .data-table th {
-    padding: 8px 10px; text-align: left;
-    font-size: 10.5px; font-weight: 600; color: var(--text-muted);
-    background: var(--gray-50); border-bottom: 1px solid var(--border);
-    white-space: nowrap; letter-spacing: 0.2px;
-    position: sticky; top: 0; z-index: 1;
-  }
-  .data-table th:first-child { border-radius: 6px 0 0 0; }
-  .data-table th:last-child { border-radius: 0 6px 0 0; }
-  .data-table td {
-    padding: 7px 10px; border-bottom: 1px solid rgba(226,234,229,0.5);
-    color: var(--text-primary); white-space: nowrap; font-variant-numeric: tabular-nums;
-  }
-  .data-table tr:hover td { background: var(--green-50); }
-  .data-table tr:last-child td { border-bottom: none; }
-  .data-table .total-row td { font-weight: 700; background: var(--gray-50); border-top: 1px solid var(--border); }
-  .table-wrap { overflow: auto; border-radius: 10px; border: 1px solid var(--border); max-height: 340px; }
-  .table-wrap-tall { overflow: auto; border-radius: 10px; border: 1px solid var(--border); max-height: 460px; }
+/* ── KPI CARDS ── */
+.kpi{background:#ffffff;border:1px solid var(--border);border-radius:12px;padding:16px 16px 12px;box-shadow:0 1px 3px rgba(0,0,0,0.05),0 0 0 1px rgba(0,0,0,0.04);overflow:hidden;display:flex;flex-direction:column;min-width:140px}
+.kpi-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1px}
+.kpi-lbl{font-size:9px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;line-height:1.3}
+.kpi-delta{font-size:10px;font-weight:700;display:flex;align-items:center;gap:1px;white-space:nowrap}
+.kpi-delta.up{color:#16a34a}.kpi-delta.dn{color:var(--red)}
+.kpi-val{font-size:19px;font-weight:900;color:var(--txt);line-height:1.2;margin:3px 0 6px}
+.spark-wrap{width:100%;height:40px;position:relative;overflow:hidden}
+.sparkline{position:absolute!important;top:0;left:0;width:100%!important;height:100%!important}
 
-  /* ── BAR CHART (CSS) ── */
-  .bar-list { display: flex; flex-direction: column; gap: 8px; padding: 4px 0; }
-  .bar-row { display: flex; align-items: center; gap: 10px; }
-  .bar-label { font-size: 11px; color: var(--text-secondary); width: 160px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .bar-track { flex: 1; height: 18px; background: var(--gray-100); border-radius: 4px; overflow: hidden; }
-  .bar-fill {
-    height: 100%; border-radius: 4px;
-    background: linear-gradient(90deg, var(--green-600), var(--green-400));
-    display: flex; align-items: center; justify-content: flex-end;
-    padding-right: 6px; font-size: 10px; font-weight: 600; color: white;
-    transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
-  }
+/* ── HORIZONTAL BARS ── */
+.hbar-list{display:flex;flex-direction:column;gap:7px;margin-top:8px}
+.hbar-row{display:flex;align-items:center;gap:8px;font-size:11.5px}
+.hbar-lbl{min-width:140px;max-width:160px;color:var(--txt2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hbar-trk{flex:1;height:7px;background:#f1f5f9;border-radius:4px;overflow:hidden}
+.hbar-fil{height:100%;border-radius:4px;transition:width .5s ease}
+.hbar-val{font-weight:700;color:var(--txt);min-width:44px;text-align:right;font-size:11.5px}
 
-  /* ── GAUGE ── */
-  .gauge-wrap { display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 10px 0; }
-  .gauge-value { font-size: 28px; font-weight: 700; color: var(--text-primary); margin-top: -10px; }
-  .gauge-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+/* ── TABLE ── */
+.tw{overflow:auto;border-radius:var(--r);border:1px solid var(--border);max-height:380px;margin-bottom:12px;box-shadow:var(--sh)}
+.dt{width:100%;border-collapse:collapse;font-size:11.5px}
+.dt th{padding:8px 10px;text-align:left;font-size:9px;font-weight:900;color:var(--muted);background:#f8f9fa;border-bottom:1px solid var(--border);white-space:nowrap;letter-spacing:.4px;text-transform:uppercase;position:sticky;top:0;z-index:1}
+.dt th.num{text-align:right}
+.dt td{padding:7px 10px;border-bottom:1px solid var(--border-lt);color:var(--txt);white-space:nowrap}
+.dt td.num{text-align:right;font-variant-numeric:tabular-nums}
+.dt tr:hover td{background:#fafaf6}
+.dt tr:last-child td{border-bottom:none}
+.dt .tot td{font-weight:700;background:#f8f9fa;border-top:1px solid var(--border)}
+.txt-g{color:#16a34a;font-weight:700}.txt-r{color:var(--red);font-weight:700}
+.arr{display:inline-flex;align-items:center;gap:1px}
 
-  /* ── STATUS CARDS ── */
-  .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .status-card {
-    border-radius: 10px; padding: 14px;
-    display: flex; flex-direction: column; align-items: center; gap: 4px;
-  }
-  .status-card.shipped { background: var(--green-800); color: white; }
-  .status-card.pending { background: var(--accent-light); color: var(--green-700); }
-  .status-card.shipping { background: var(--gray-100); color: var(--text-secondary); }
-  .status-card.cancelled { background: var(--gray-100); color: var(--text-secondary); }
-  .status-num { font-size: 26px; font-weight: 700; }
-  .status-lbl { font-size: 11px; font-weight: 500; opacity: 0.8; }
+/* ── STATUS CARDS ── */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.scard{border-radius:9px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.scard.shipped{background:var(--green);color:white}
+.scard.pending{background:var(--accent-lt);color:var(--green)}
+.scard.shipping{background:#f0f9ff;color:#0369a1}
+.scard.cancelled{background:var(--red-lt);color:var(--red)}
+.scard svg{width:20px;height:20px}
+.snum{font-size:26px;font-weight:900;line-height:1}
+.slbl{font-size:10px;font-weight:700;opacity:.8}
 
-  /* ── INVENTORY CARDS ── */
-  .inv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 14px; }
-  .inv-section-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-  .inv-card {
-    background: white; border: 1px solid var(--border); border-radius: 10px; padding: 14px;
-  }
-  .inv-card-title { font-size: 11px; font-weight: 600; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-  .inv-card-title.green { color: var(--green-600); border-bottom-color: var(--green-100); }
-  .inv-card-title.amber { color: var(--amber); border-bottom-color: var(--amber-light); }
-  .inv-card-title.red { color: var(--red); border-bottom-color: var(--red-light); }
-  .inv-card-title.blue { color: var(--blue); border-bottom-color: var(--blue-light); }
-  .inv-metric { margin-bottom: 6px; }
-  .inv-metric-label { font-size: 10px; color: var(--text-muted); }
-  .inv-metric-value { font-size: 13px; font-weight: 700; color: var(--text-primary); }
-  .inv-metric-value.green { color: var(--green-600); }
-  .inv-metric-value.red { color: var(--red); }
-  .inv-metric-sub { font-size: 10px; color: var(--text-muted); }
+/* ── INVENTORY ── */
+.ig4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.ic{background:#ffffff;border:1px solid var(--border);border-radius:12px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05),0 0 0 1px rgba(0,0,0,0.04)}
+.it{font-size:9.5px;font-weight:900;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border-lt);text-transform:uppercase;letter-spacing:.5px}
+.it.g{color:var(--green)}.it.a{color:var(--amber)}.it.r{color:var(--red)}.it.b{color:var(--blue)}
+.ilbl{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.ival{font-size:14px;font-weight:900;color:var(--txt)}
+.ival.g{color:var(--green)}.ival.r{color:var(--red)}
+.itbl{width:100%;border-collapse:collapse;font-size:10px;margin-top:6px}
+.itbl th{padding:3px 4px;font-weight:900;color:var(--muted);border-bottom:1px solid var(--border);text-transform:uppercase;font-size:8.5px}
+.itbl td{padding:3px 4px;border-bottom:1px solid var(--border-lt)}
+.div{height:1px;background:var(--border-lt);margin:10px 0}
+.badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;display:inline-block}
+.badge.g{background:var(--accent-lt);color:var(--green)}
+.badge.r{background:var(--red-lt);color:var(--red)}
+.badge.a{background:#fef3c7;color:var(--amber)}
 
-  .inv-mini-table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 8px; }
-  .inv-mini-table th { padding: 3px 4px; text-align: left; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border); }
-  .inv-mini-table td { padding: 3px 4px; border-bottom: 1px solid rgba(226,234,229,0.4); }
+/* ── PILLS ── */
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.pill{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid var(--border);color:var(--txt2);cursor:pointer;transition:all .15s;background:white}
+.pill.active{background:var(--green);color:white;border-color:var(--green)}
+.pill:hover:not(.active){border-color:var(--green);color:var(--green)}
 
-  /* ── PERF TABLE TOP ── */
-  .perf-top { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-  .perf-card { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
-  .perf-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .perf-tag { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
-  .perf-tag.green { background: var(--green-100); color: var(--green-600); }
-  .perf-tag.red { background: var(--red-light); color: var(--red); }
+/* ── INSIGHT BOX ── */
+.insight-box{background:linear-gradient(135deg,#f0faf5,#eaf6ef);border:1px solid #c6e9d4;border-radius:var(--r);padding:16px;margin-bottom:12px}
+.insight-hdr{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.insight-hdr svg{width:16px;height:16px;color:var(--green)}
+.insight-hdr span{font-size:12px;font-weight:900;color:var(--green)}
+.insight-items{display:flex;flex-direction:column;gap:6px}
+.insight-item{display:flex;align-items:flex-start;gap:8px;font-size:11.5px;color:var(--txt2);line-height:1.45}
+.insight-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:4px}
 
-  /* ── DONUT ── */
-  .donut-wrap { display: flex; align-items: center; justify-content: center; height: 120px; }
-
-  /* ── TAG PILLS ── */
-  .tag-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
-  .tag-pill {
-    padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 500;
-    border: 1.5px solid var(--border); color: var(--text-secondary); cursor: pointer;
-    transition: all 0.15s; background: white;
-  }
-  .tag-pill.active { background: var(--green-800); color: white; border-color: var(--green-800); }
-  .tag-pill:hover:not(.active) { border-color: var(--green-400); color: var(--text-primary); }
-
-  /* ── PAGE TITLE ── */
-  .page-title { font-size: 17px; font-weight: 700; margin-bottom: 16px; color: var(--text-primary); }
-
-  /* TOOLTIP */
-  .chart-tooltip {
-    position: absolute; background: var(--green-800); color: white;
-    padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 500;
-    pointer-events: none; z-index: 10; white-space: nowrap;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  }
-
-  /* ── SCROLLBAR ── */
-  .content::-webkit-scrollbar { width: 5px; }
-  .content::-webkit-scrollbar-track { background: transparent; }
-  .content::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 10px; }
-
-  /* ── RESPONSIVE CHART ── */
-  canvas { max-width: 100%; }
-
-  .section-label {
-    font-size: 11px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.5px;
-    text-transform: uppercase; margin-bottom: 10px; margin-top: 4px;
-  }
-
-  .highlight-val { font-size: 20px; font-weight: 700; color: var(--text-primary); }
-  .highlight-delta { font-size: 12px; color: var(--green-500); font-weight: 500; }
-
-  .trend-up::before { content: '↑ '; }
-  .trend-down::before { content: '↓ '; color: var(--red); }
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;gap:10px;color:var(--muted)}
+.empty svg{width:40px;height:40px;opacity:.2}
+.empty h3{font-size:14px;font-weight:700;color:var(--txt2)}
+.empty p{font-size:12px}
 </style>
 </head>
 <body>
 
-<!-- SIDEBAR -->
-<aside class="sidebar">
-  <div class="sidebar-logo">
-    <div class="logo-mark">CML</div>
-    <div class="logo-sub">Color More Lines</div>
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="logo-sq">P</div>
+    <div><span class="logo-name">PRYSM</span><span class="logo-ver">2.0</span></div>
   </div>
+  <nav class="nav">
 
-  <nav class="nav-section">
-    <div class="nav-item active" onclick="navigate('executive', this)">
-      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h5v5H2V2zm0 7h5v5H2V9zm7-7h5v5H9V2zm0 7h5v5H9V9z"/></svg>
+    <!-- Executive Summary — Lucide: LayoutGrid -->
+    <div class="nav-link active" id="nv-executive" onclick="go('executive','nv-executive')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
       Executive Summary
     </div>
 
-    <div class="nav-item parent">Sales</div>
-    <div class="nav-item" onclick="navigate('sales-overview', this)">
-      <span class="nav-dot"></span> Sales Overview
+    <!-- Sales — Lucide: ShoppingCart -->
+    <div class="nav-par open" onclick="tog(this)">
+      <svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+      Sales
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
     </div>
-    <div class="nav-item" onclick="navigate('sales-performance', this)">
-      <span class="nav-dot"></span> Sales Performance
-    </div>
-    <div class="nav-item" onclick="navigate('product-performance', this)">
-      <span class="nav-dot"></span> Product Performance
-    </div>
-
-    <div class="nav-item parent">Advertising</div>
-    <div class="nav-item" onclick="navigate('ppc-overview', this)">
-      <span class="nav-dot"></span> PPC Overview
-    </div>
-    <div class="nav-item" onclick="navigate('ppc-performance', this)">
-      <span class="nav-dot"></span> PPC Performance
-    </div>
-    <div class="nav-item" onclick="navigate('ppc-product', this)">
-      <span class="nav-dot"></span> PPC Product Performance
-    </div>
-    <div class="nav-item" onclick="navigate('marketing', this)">
-      <span class="nav-dot"></span> Marketing Overview
-    </div>
-    <div class="nav-item" onclick="navigate('customer', this)">
-      <span class="nav-dot"></span> Customer Journey
+    <div class="nav-kids open">
+      <div class="nav-kid" id="nv-sales-overview" onclick="go('sales-overview','nv-sales-overview')">Sales Overview</div>
+      <div class="nav-kid" id="nv-sales-performance" onclick="go('sales-performance','nv-sales-performance')">Sales Performance</div>
+      <div class="nav-kid" id="nv-product-performance" onclick="go('product-performance','nv-product-performance')">Product Performance</div>
     </div>
 
-    <div class="nav-item parent">Finance</div>
-    <div class="nav-item" onclick="navigate('pl', this)">
-      <span class="nav-dot"></span> P&L
+    <!-- Advertising & Marketing — Lucide: Megaphone -->
+    <div class="nav-par" onclick="tog(this)">
+      <svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 19-9-9 19-2-8-8-2z"/></svg>
+      Advertising &amp; Marketing
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
     </div>
-    <div class="nav-item" onclick="navigate('cost-details', this)">
-      <span class="nav-dot"></span> Cost Details
-    </div>
-
-    <div class="nav-item parent">Inventory</div>
-    <div class="nav-item" onclick="navigate('inventory-overview', this)">
-      <span class="nav-dot"></span> Inventory Overview
-    </div>
-    <div class="nav-item" onclick="navigate('inventory-mgmt', this)">
-      <span class="nav-dot"></span> Inventory Management
-    </div>
-    <div class="nav-item" onclick="navigate('inventory-age', this)">
-      <span class="nav-dot"></span> Inventory Age
+    <div class="nav-kids">
+      <div class="nav-kid" id="nv-ppc-overview" onclick="go('ppc-overview','nv-ppc-overview')">PPC Overview</div>
+      <div class="nav-kid" id="nv-ppc-performance" onclick="go('ppc-performance','nv-ppc-performance')">PPC Performance</div>
+      <div class="nav-kid" id="nv-ppc-product" onclick="go('ppc-product','nv-ppc-product')">PPC Product Performance</div>
+      <div class="nav-kid" id="nv-marketing" onclick="go('marketing','nv-marketing')">Marketing Overview</div>
+      <div class="nav-kid" id="nv-customer" onclick="go('customer','nv-customer')">Consumer Journey</div>
     </div>
 
-    <div class="nav-item parent">Operations</div>
-    <div class="nav-item" onclick="navigate('listing-mgmt', this)">
-      <span class="nav-dot"></span> Listing Management
+    <!-- Financial — Lucide: CircleDollarSign -->
+    <div class="nav-par" onclick="tog(this)">
+      <svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg>
+      Financial
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
     </div>
-    <div class="nav-item" onclick="navigate('review', this)">
-      <span class="nav-dot"></span> Review and Ratings
+    <div class="nav-kids">
+      <div class="nav-kid" id="nv-pl" onclick="go('pl','nv-pl')">P&amp;L</div>
+      <div class="nav-kid" id="nv-cost-details" onclick="go('cost-details','nv-cost-details')">Cost Details</div>
     </div>
+
+    <!-- Inventory — Lucide: Package -->
+    <div class="nav-par" onclick="tog(this)">
+      <svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"/><path d="m7.5 4.27 9 5.15"/></svg>
+      Inventory
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="nav-kids">
+      <div class="nav-kid" id="nv-inventory-overview" onclick="go('inventory-overview','nv-inventory-overview')">Inventory Overview</div>
+      <div class="nav-kid" id="nv-inventory-mgmt" onclick="go('inventory-mgmt','nv-inventory-mgmt')">Inventory Management</div>
+      <div class="nav-kid" id="nv-inventory-age" onclick="go('inventory-age','nv-inventory-age')">Inventory Age</div>
+    </div>
+
+    <!-- Operations — Lucide: Settings2 -->
+    <div class="nav-par" onclick="tog(this)">
+      <svg class="ni" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7H9"/><path d="M14 17H3"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
+      Operations
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="nav-kids">
+      <div class="nav-kid" id="nv-listing-mgmt" onclick="go('listing-mgmt','nv-listing-mgmt')">Listing Management</div>
+      <div class="nav-kid" id="nv-review" onclick="go('review','nv-review')">Review and Ratings</div>
+    </div>
+
   </nav>
 </aside>
 
-<!-- MAIN -->
+<!-- ═══════════ MAIN ═══════════ -->
 <div class="main">
-  <!-- TOPBAR -->
-  <header class="topbar">
-    <div class="topbar-left">
-      <h1 id="page-title-bar">PRYSM</h1>
-      <p>Detailed information about your store</p>
-    </div>
-    <div class="topbar-right">
-      <div class="topbar-icon">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M13 13l-3-3"/></svg>
-      </div>
-      <div class="topbar-icon">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2a4 4 0 0 1 4 4v2l1 2H3l1-2V6a4 4 0 0 1 4-4z"/><path d="M6 12a2 2 0 0 0 4 0"/></svg>
-        <div class="badge-dot"></div>
-      </div>
-      <div class="avatar">SG</div>
-    </div>
-  </header>
+<div class="content">
 
-  <!-- CONTENT -->
-  <main class="content">
-
-    <!-- ═══════════ EXECUTIVE SUMMARY ═══════════ -->
-    <div class="page active" id="page-executive">
-      <div class="filters-bar">
-        <div class="filter-select">
-          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="10" height="10" rx="1"/></svg>
-          <select><option>Market Place</option><option>Amazon US</option><option>Amazon EU</option></select>
-        </div>
-        <div class="filter-select">
-          <select><option>Products</option><option>All Products</option><option>Brutus Bone Broth</option></select>
-        </div>
-        <div class="filters-spacer"></div>
-        <div class="filter-btn">
-          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="10" height="10" rx="1"/><path d="M4 6h4M3 4h6M5 8h2"/></svg>
-          Date
-        </div>
-        <div class="filter-btn">
-          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="5"/><path d="M6 3v3l2 2"/></svg>
-          Compare to
-        </div>
-      </div>
-
-      <!-- KPIs -->
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:#D4F1E1">💵</div>
-          <div class="kpi-label">Gross Sales</div>
-          <div class="kpi-value mono">$1,812,088</div>
-          <div class="kpi-delta up">↑ +35%</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:#FEF3C7">📈</div>
-          <div class="kpi-label">Profit</div>
-          <div class="kpi-value mono">$10,566.01</div>
-          <div class="kpi-delta up">↑ +12%</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:#FDEAEA">📦</div>
-          <div class="kpi-label">Units</div>
-          <div class="kpi-value mono">5,566.01</div>
-          <div class="kpi-delta down">↓ -5%</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:#EFF6FF">📣</div>
-          <div class="kpi-label">Ad Sales</div>
-          <div class="kpi-value mono">55.01%</div>
-          <div class="kpi-delta up">↑ +15%</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:#F0FAF4">💸</div>
-          <div class="kpi-label">Ad Spend</div>
-          <div class="kpi-value mono">5,566.01</div>
-          <div class="kpi-delta up">↑ +11%</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon" style="background:#F0FAF4">⚡</div>
-          <div class="kpi-label">AOV</div>
-          <div class="kpi-value mono">55.01%</div>
-          <div class="kpi-delta up">↑ +5%</div>
-        </div>
-      </div>
-
-      <!-- Growth Chart -->
-      <div class="chart-card">
-        <div class="chart-header">
-          <div>
-            <div class="chart-title">Growth Sales By Month
-              <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M7 5v2l1.5 1.5"/></svg>
-            </div>
-          </div>
-          <div class="chart-legend">
-            <span><span class="legend-dot" style="background:#0D2B1A"></span>2025</span>
-            <span><span class="legend-dot" style="background:#4CAF75"></span>2024</span>
-            <span><span class="legend-dot" style="background:#D4F1E1"></span>2023</span>
-          </div>
-        </div>
-        <div class="chart-container" style="height:200px">
-          <canvas id="growthChart"></canvas>
-        </div>
-      </div>
-
-      <!-- Bottom row: Map + Product -->
-      <div class="chart-grid-3-map">
-        <div class="chart-card" style="margin:0">
-          <div class="chart-header">
-            <div class="chart-title">Gross Sales By State</div>
-            <div style="display:flex;gap:16px;font-size:11px;color:var(--text-muted)">
-              <span><span class="legend-dot" style="background:#0D2B1A"></span>High</span>
-              <span><span class="legend-dot" style="background:#4CAF75"></span>Medium</span>
-              <span><span class="legend-dot" style="background:#D4F1E1"></span>Low</span>
-            </div>
-          </div>
-          <!-- Simplified US Map SVG -->
-          <div style="background:var(--gray-50);border-radius:8px;padding:12px;margin-bottom:10px">
-            <svg viewBox="0 0 400 240" style="width:100%;height:160px">
-              <!-- Simplified US states representation -->
-              <rect x="10" y="20" width="50" height="35" rx="2" fill="#D4F1E1" opacity="0.8"/>
-              <rect x="65" y="15" width="45" height="30" rx="2" fill="#4CAF75" opacity="0.8"/>
-              <rect x="115" y="20" width="40" height="28" rx="2" fill="#0D2B1A" opacity="0.9"/>
-              <rect x="160" y="15" width="50" height="35" rx="2" fill="#1F4D30" opacity="0.9"/>
-              <rect x="215" y="18" width="45" height="30" rx="2" fill="#4CAF75" opacity="0.7"/>
-              <rect x="265" y="20" width="55" height="28" rx="2" fill="#6FCF97" opacity="0.7"/>
-              <rect x="325" y="15" width="40" height="32" rx="2" fill="#A8E6C0" opacity="0.7"/>
-              <rect x="10" y="60" width="55" height="40" rx="2" fill="#6FCF97" opacity="0.7"/>
-              <rect x="70" y="55" width="45" height="38" rx="2" fill="#0D2B1A" opacity="0.95"/>
-              <rect x="120" y="58" width="50" height="36" rx="2" fill="#1A3D28" opacity="0.9"/>
-              <rect x="175" y="55" width="45" height="40" rx="2" fill="#4CAF75" opacity="0.8"/>
-              <rect x="225" y="58" width="50" height="36" rx="2" fill="#2D8653" opacity="0.8"/>
-              <rect x="280" y="55" width="40" height="38" rx="2" fill="#D4F1E1" opacity="0.7"/>
-              <rect x="325" y="58" width="50" height="35" rx="2" fill="#A8E6C0" opacity="0.6"/>
-              <rect x="10" y="105" width="50" height="40" rx="2" fill="#4CAF75" opacity="0.7"/>
-              <rect x="65" y="100" width="55" height="42" rx="2" fill="#1F4D30" opacity="0.9"/>
-              <rect x="125" y="103" width="45" height="40" rx="2" fill="#0D2B1A" opacity="0.85"/>
-              <rect x="175" y="100" width="50" height="42" rx="2" fill="#6FCF97" opacity="0.7"/>
-              <rect x="230" y="103" width="45" height="40" rx="2" fill="#A8E6C0" opacity="0.6"/>
-              <rect x="280" y="100" width="42" height="38" rx="2" fill="#D4F1E1" opacity="0.5"/>
-              <rect x="327" y="103" width="48" height="40" rx="2" fill="#4CAF75" opacity="0.65"/>
-              <rect x="10" y="150" width="45" height="50" rx="2" fill="#A8E6C0" opacity="0.5"/>
-              <rect x="60" y="148" width="60" height="52" rx="2" fill="#6FCF97" opacity="0.65"/>
-              <rect x="125" y="150" width="55" height="50" rx="2" fill="#2D8653" opacity="0.75"/>
-              <rect x="185" y="148" width="50" height="52" rx="2" fill="#D4F1E1" opacity="0.5"/>
-              <rect x="240" y="150" width="45" height="50" rx="2" fill="#4CAF75" opacity="0.6"/>
-              <rect x="290" y="148" width="50" height="50" rx="2" fill="#1A3D28" opacity="0.85"/>
-              <rect x="345" y="150" width="35" height="50" rx="2" fill="#A8E6C0" opacity="0.5"/>
-              <!-- TX label -->
-              <text x="95" y="80" fill="white" font-size="8" font-weight="700" text-anchor="middle">TX</text>
-              <text x="148" y="78" fill="white" font-size="8" font-weight="700" text-anchor="middle">CA</text>
-            </svg>
-          </div>
-          <div style="background:white;border:1px solid var(--border);border-radius:8px;padding:10px">
-            <div style="font-size:11px;font-weight:600;margin-bottom:6px">State Breakdown</div>
-            <div style="display:flex;flex-direction:column;gap:4px;font-size:11px">
-              <div style="display:flex;justify-content:space-between"><span><span class="legend-dot" style="background:#0D2B1A"></span>Texas</span><span style="font-weight:600">100k</span></div>
-              <div style="display:flex;justify-content:space-between"><span><span class="legend-dot" style="background:#1A3D28"></span>Ohio</span><span style="font-weight:600">99k</span></div>
-              <div style="display:flex;justify-content:space-between"><span><span class="legend-dot" style="background:#4CAF75"></span>Las Vegas</span><span style="font-weight:600">40k</span></div>
-              <div style="display:flex;justify-content:space-between"><span><span class="legend-dot" style="background:#6FCF97"></span>California</span><span style="font-weight:600">39k</span></div>
-              <div style="display:flex;justify-content:space-between"><span><span class="legend-dot" style="background:#A8E6C0"></span>Colorado</span><span style="font-weight:600">20k</span></div>
-              <div style="display:flex;justify-content:space-between"><span><span class="legend-dot" style="background:#D4F1E1"></span>Arizona</span><span style="font-weight:600">5k</span></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="chart-card" style="margin:0">
-          <div class="chart-header">
-            <div class="chart-title">Gross Sales By Product</div>
-          </div>
-          <div class="bar-list">
-            <div class="bar-row"><div class="bar-label">Brutus Bone Broth</div><div class="bar-track"><div class="bar-fill" style="width:100%">120k</div></div></div>
-            <div class="bar-row"><div class="bar-label">BB Beef + Chicken</div><div class="bar-track"><div class="bar-fill" style="width:67%">80k</div></div></div>
-            <div class="bar-row"><div class="bar-label">BB Beef + Pork</div><div class="bar-track"><div class="bar-fill" style="width:67%">80k</div></div></div>
-            <div class="bar-row"><div class="bar-label">BB Instant</div><div class="bar-track"><div class="bar-fill" style="width:25%;background:linear-gradient(90deg,var(--green-300),var(--green-200));color:var(--text-primary)">20k</div></div></div>
-            <div class="bar-row"><div class="bar-label">BB Biscuits</div><div class="bar-track"><div class="bar-fill" style="width:50%">50k</div></div></div>
-            <div class="bar-row"><div class="bar-label">Goat Milk</div><div class="bar-track"><div class="bar-fill" style="width:50%">60k</div></div></div>
-            <div class="bar-row"><div class="bar-label">Brothcicles</div><div class="bar-track"><div class="bar-fill" style="width:42%">50k</div></div></div>
-            <div class="bar-row"><div class="bar-label">Holiday Bundle</div><div class="bar-track"><div class="bar-fill" style="width:33%">40k</div></div></div>
-            <div class="bar-row"><div class="bar-label">Blank()</div><div class="bar-track"><div class="bar-fill" style="width:5%;background:var(--gray-200);color:var(--text-muted)">0k</div></div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══════════ SALES PERFORMANCE ═══════════ -->
-    <div class="page" id="page-sales-performance">
-      <div class="filters-bar">
-        <div class="filter-select"><select><option>Market Place</option></select></div>
-        <div class="filter-select"><select><option>Products</option></select></div>
-        <div class="filters-spacer"></div>
-        <div class="filter-btn"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="10" height="10" rx="1"/></svg>By Month</div>
-        <div class="filter-btn">📅 Start Date</div>
-        <div class="filter-btn">📅 End Date</div>
-      </div>
-
-      <div class="table-wrap" style="margin-bottom:14px">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Metric ↑</th><th>1/1/25</th><th>1/2/25</th><th>1/3/25</th><th>1/4/25</th><th>1/5/25</th><th>1/6/25</th><th>1/7/25</th><th>1/8/25</th><th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>Gross Sales (Daily Avg.)</td><td>$475</td><td>$58</td><td>$59</td><td>$5875</td><td>$5875</td><td>$4675</td><td>$6375</td><td>$427</td><td style="font-weight:700">$4876</td></tr>
-            <tr><td>Gross Sales</td><td>$5,432</td><td>$1,644</td><td>$10,332</td><td>$142,319</td><td>$125,432</td><td>$11,432</td><td>$6,432</td><td>$1,432</td><td style="font-weight:700">$1,154</td></tr>
-            <tr><td>Refunds</td><td>$2479</td><td>$1,340</td><td>$275</td><td>$4998</td><td>$1999</td><td>$5800</td><td>$3199</td><td>$1,750</td><td style="font-weight:700">$25,998</td></tr>
-            <tr><td>Promo</td><td>$10</td><td>$1999</td><td>$1,980</td><td>$9,394</td><td>$1034</td><td>$999,99</td><td>$10,340</td><td>$999</td><td style="font-weight:700">$10,340</td></tr>
-            <tr><td>Net Sales</td><td>$875</td><td>$800</td><td>$8750</td><td>$8,750</td><td>$6,750</td><td>$10,340</td><td>$8,750</td><td>$10,340</td><td style="font-weight:700">$81,750</td></tr>
-            <tr><td>COGS</td><td>$9,800</td><td>$875</td><td>$980</td><td>$9,800</td><td>$9,800</td><td>$8,750</td><td>$9,800</td><td>$9,800</td><td style="font-weight:700">$99,800</td></tr>
-            <tr><td>COGS (%)</td><td>28%</td><td>21%</td><td>21%</td><td>81%</td><td>81%</td><td>29.1%</td><td>81%</td><td>21%</td><td style="font-weight:700">39.1%</td></tr>
-            <tr><td>Ad Spend</td><td>$2,600</td><td>$22</td><td>$2,600</td><td>$260</td><td>$2,600</td><td>$2,600</td><td>$2,600</td><td>$2,600</td><td style="font-weight:700">$29,600</td></tr>
-            <tr><td>Selling Fees</td><td>$7,220</td><td>$19</td><td>$722</td><td>$7,220</td><td>$7,220</td><td>$7,220</td><td>$7,220</td><td>$7,220</td><td style="font-weight:700">$77,220</td></tr>
-            <tr><td>Units Ordered</td><td>$275</td><td>$10,175</td><td>$312</td><td>$275</td><td>$312</td><td>$80</td><td>$3,991</td><td>$1,990</td><td style="font-weight:700">$875</td></tr>
-            <tr class="total-row"><td>AOV</td><td>$10,175</td><td>$392</td><td>$10,175</td><td>$10,175</td><td>$18,175</td><td>$18,175</td><td>$10,175</td><td>$10,175</td><td style="font-weight:700">$19,175</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="chart-grid-2">
-        <div class="chart-card" style="margin:0">
-          <div class="chart-header">
-            <div class="chart-title">Gross Sales vs Est. Gross Profit</div>
-            <div class="chart-legend">
-              <span><span class="legend-dot" style="background:#0D2B1A"></span>Gross Sales</span>
-              <span><span class="legend-dot" style="background:#4CAF75"></span>Gross Profit</span>
-            </div>
-          </div>
-          <div style="height:180px"><canvas id="salesProfitChart"></canvas></div>
-        </div>
-        <div class="chart-card" style="margin:0">
-          <div class="chart-header"><div class="chart-title">Status</div></div>
-          <div class="status-grid">
-            <div class="status-card shipped">
-              <div style="font-size:18px">🚚</div>
-              <div class="status-num">140</div>
-              <div class="status-lbl">Shipped</div>
-            </div>
-            <div class="status-card pending">
-              <div style="font-size:18px">⏳</div>
-              <div class="status-num">79</div>
-              <div class="status-lbl">Pending</div>
-            </div>
-            <div class="status-card shipping">
-              <div style="font-size:18px">📦</div>
-              <div class="status-num">89</div>
-              <div class="status-lbl">Shipping</div>
-            </div>
-            <div class="status-card cancelled">
-              <div style="font-size:18px">✕</div>
-              <div class="status-num">123</div>
-              <div class="status-lbl">Cancelled</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══════════ PRODUCT PERFORMANCE ═══════════ -->
-    <div class="page" id="page-product-performance">
-      <div class="filters-bar">
-        <div class="filter-select"><select><option>Market Place</option></select></div>
-        <div class="filter-select"><select><option>Products</option></select></div>
-      </div>
-
-      <div class="kpi-grid" style="grid-template-columns:repeat(5,1fr)">
-        <div class="kpi-card"><div class="kpi-label">MTD Sales</div><div class="kpi-value mono">$1,812,088</div><div class="kpi-delta up">↑ +35%</div></div>
-        <div class="kpi-card"><div class="kpi-label">MTD Sales LM</div><div class="kpi-value mono">$12,566.01</div><div class="kpi-delta up">↑ +12%</div></div>
-        <div class="kpi-card"><div class="kpi-label">MTD Sales LY</div><div class="kpi-value mono">(Blank)</div><div class="kpi-delta down">↓ -5%</div></div>
-        <div class="kpi-card"><div class="kpi-label">MTD MOM%</div><div class="kpi-value mono">70%</div><div class="kpi-delta up">↑ +15%</div></div>
-        <div class="kpi-card"><div class="kpi-label">MTD YOY%</div><div class="kpi-value mono">0%</div><div class="kpi-delta up">↑ +11%</div></div>
-      </div>
-
-      <div class="chart-grid-2" style="margin-bottom:14px">
+  <!-- ════════════════ EXECUTIVE SUMMARY ════════════════ -->
+  <div class="page active" id="pg-executive">
+    <div class="page-top" style="background:#f0f0eb;padding:20px 28px 0;border-bottom:1px solid #e5e5df;">
+      <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:0;padding-bottom:14px">
+        <svg style="width:18px;height:18px;color:var(--muted);margin-top:5px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg>
         <div>
-          <div class="perf-top">
-            <div class="perf-card">
-              <div class="perf-card-header">
-                <div style="font-size:11px;font-weight:600;color:var(--text-muted)">MTD Top Performers</div>
-                <div class="perf-tag green">MTD MOM%</div>
-              </div>
-              <table style="width:100%;font-size:11.5px;border-collapse:collapse">
-                <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 0;color:var(--text-secondary)">Dark Roast</td><td style="text-align:right;font-weight:600;color:var(--green-600)">120%</td></tr>
-                <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 0;color:var(--text-secondary)">Dark Roast Box of 15</td><td style="text-align:right;font-weight:600;color:var(--green-600)">151%</td></tr>
-                <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 0;color:var(--text-secondary)">Decaf Medium Roast</td><td style="text-align:right;font-weight:600;color:var(--green-600)">150%</td></tr>
-                <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 0;color:var(--text-secondary)">Mocha Box of 15</td><td style="text-align:right;font-weight:600;color:var(--green-600)">163%</td></tr>
-                <tr><td style="padding:5px 0;color:var(--text-secondary)">Truly Fruity Stars</td><td style="text-align:right;font-weight:600;color:var(--green-600)">140%</td></tr>
-              </table>
-            </div>
-            <div class="perf-card">
-              <div class="perf-card-header">
-                <div style="font-size:11px;font-weight:600;color:var(--text-muted)">MTD Top Decliners</div>
-                <div class="perf-tag red">MTD MOM%</div>
-              </div>
-              <table style="width:100%;font-size:11.5px;border-collapse:collapse">
-                <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 0;color:var(--text-secondary)">Hazelnut Box of 15</td><td style="text-align:right;font-weight:600;color:var(--red)">-100%</td></tr>
-                <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 0;color:var(--text-secondary)">Cinnastars Pack of 6</td><td style="text-align:right;font-weight:600;color:var(--red)">-100%</td></tr>
-                <tr><td style="padding:5px 0;color:var(--text-secondary)">Cinnastars Pack of 6</td><td style="text-align:right;font-weight:600;color:var(--red)">-35%</td></tr>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div class="chart-card" style="margin:0">
-          <div class="chart-header">
-            <div>
-              <div class="chart-title">MTD</div>
-              <div style="font-size:18px;font-weight:700;margin-top:2px">$8,574.21 <span style="font-size:12px;color:var(--green-500);font-weight:500">↑ 44%</span></div>
-            </div>
-            <div class="chart-legend">
-              <span><span class="legend-dot" style="background:#0D2B1A"></span>MTD Sales</span>
-              <span><span class="legend-dot" style="background:#4CAF75"></span>A Sales LM</span>
-              <span><span class="legend-dot" style="background:#E85555"></span>A Sales LM</span>
-            </div>
-          </div>
-          <div style="height:160px"><canvas id="productChart"></canvas></div>
+          <h1 style="font-size:21px;font-weight:900;color:var(--txt);margin:0;letter-spacing:-0.3px">Executive Summary</h1>
+          <p style="font-size:12.5px;color:var(--muted);margin-top:2px;font-weight:400">Performance overview across all marketplaces</p>
         </div>
       </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0 16px;flex-wrap:nowrap;gap:12px;">
 
-      <div class="table-wrap">
-        <table class="data-table">
-          <thead>
-            <tr><th>Product Name ↑</th><th>1/1/25</th><th>1/1/25</th><th>1/1/25</th><th>1/1/25</th><th>1/1/25</th><th>1/1/25</th><th>Total</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Food Sensitivity Test Kit</td><td>$875.00</td><td>$875.00</td><td>$875.00</td><td>$875.00</td><td>$875.00</td><td>$875.00</td><td style="font-weight:700">$875.00</td></tr>
-            <tr><td>Food Sensitivity Test Kit (Five additional)</td><td>$5,432.0</td><td>$5,432.0</td><td>—</td><td>$5,432.0</td><td>$5,432.0</td><td>$5,432.0</td><td style="font-weight:700">$5,432.0</td></tr>
-            <tr><td>AFL Food & Drinks Sensitivity Test Kit</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td style="font-weight:700">—</td></tr>
-            <tr><td>AFL Pet Dried</td><td>$10,340.0</td><td>$10,340.0</td><td>$10,340.0</td><td>$10,340.0</td><td>$10,340.0</td><td>$10,340.0</td><td style="font-weight:700">$10,340.0</td></tr>
-            <tr class="total-row"><td>Total</td><td>$99,800.0</td><td>$3,300.0</td><td>$19,500.0</td><td>$4,433.0</td><td>$129.0</td><td>$800.0</td><td style="font-weight:700">$20,800.0</td></tr>
-          </tbody>
-        </table>
+        <!-- LEFT: Marketplace, Product, Brand -->
+        <div style="display:flex;align-items:center;gap:0;flex-wrap:nowrap;">
+          <span class="fltr-lbl" style="margin-left:0">Marketplace</span>
+          <div class="dd-wrap">
+            <select onchange="this.nextElementSibling.querySelector('.dd-txt').textContent=this.options[this.selectedIndex].text">
+              <option>All Marketplaces</option><option>Amazon US</option><option>Amazon CA</option><option>Amazon MX</option><option>Amazon UK</option><option>Amazon DE</option><option>Amazon FR</option><option>Amazon IT</option><option>Amazon ES</option><option>Amazon JP</option><option>Amazon AU</option>
+            </select>
+            <div class="dd-btn"><span class="dd-txt">All Marketplaces</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+          </div>
+          <span class="fltr-lbl">Product</span>
+          <div class="dd-wrap">
+            <select onchange="this.nextElementSibling.querySelector('.dd-txt').textContent=this.options[this.selectedIndex].text">
+              <option>All Products</option><option>Product-1</option><option>Product-2</option><option>Product-3</option><option>Product-4</option><option>Product-5</option><option>Product-6</option><option>Product-7</option>
+            </select>
+            <div class="dd-btn"><span class="dd-txt">All Products</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+          </div>
+          <span class="fltr-lbl">Brand</span>
+          <div class="dd-wrap">
+            <select onchange="this.nextElementSibling.querySelector('.dd-txt').textContent=this.options[this.selectedIndex].text">
+              <option>All Brands</option><option>Brutus Broth</option><option>Color More Lines</option>
+            </select>
+            <div class="dd-btn"><span class="dd-txt">All Brands</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Start Date & End Date -->
+        <div style="display:flex;align-items:center;gap:0;flex-wrap:nowrap;">
+          <span class="fltr-lbl" style="margin-left:0">Start Date</span>
+          <label class="date-pick">
+            <input type="date" value="2025-03-01" onchange="document.getElementById('sd-val').textContent=formatDate(this.value)">
+            <span id="sd-val">Mar 1, 2025</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          </label>
+          <span class="fltr-lbl">End Date</span>
+          <label class="date-pick">
+            <input type="date" value="2025-03-26" onchange="document.getElementById('ed-val').textContent=formatDate(this.value)">
+            <span id="ed-val">Mar 26, 2025</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          </label>
+        </div>
+
+      </div>
+      </div>
+    <div class="page-body">
+
+    <!-- KPI Row -->
+    <div class="g7">
+      <div class="kpi"><div class="kpi-top"><div class="kpi-lbl">Gross<br>Sales</div><div class="kpi-delta up">↑ 12.4%</div></div><div class="kpi-val">$6,886,606</div><div class="spark-wrap"><canvas class="sparkline" id="sp0"></canvas></div></div>
+      <div class="kpi"><div class="kpi-top"><div class="kpi-lbl">Units<br>Sold</div><div class="kpi-delta up">↑ 8.1%</div></div><div class="kpi-val">292,093</div><div class="spark-wrap"><canvas class="sparkline" id="sp1"></canvas></div></div>
+      <div class="kpi"><div class="kpi-top"><div class="kpi-lbl">Refunds</div><div class="kpi-delta dn">↓ 3.2%</div></div><div class="kpi-val" style="color:var(--red)">$(123,222)</div><div class="spark-wrap"><canvas class="sparkline" id="sp2"></canvas></div></div>
+      <div class="kpi"><div class="kpi-top"><div class="kpi-lbl">Return<br>Rate %</div><div class="kpi-delta dn">↓ 0.4%</div></div><div class="kpi-val">1.6%</div><div class="spark-wrap"><canvas class="sparkline" id="sp3"></canvas></div></div>
+      <div class="kpi"><div class="kpi-top"><div class="kpi-lbl">Ad Sales</div><div class="kpi-delta up">↑ 6.3%</div></div><div class="kpi-val">$2,296,585</div><div class="spark-wrap"><canvas class="sparkline" id="sp4"></canvas></div></div>
+      <div class="kpi"><div class="kpi-top"><div class="kpi-lbl">TACoS</div><div class="kpi-delta dn">↓ 1.2%</div></div><div class="kpi-val">8.5%</div><div class="spark-wrap"><canvas class="sparkline" id="sp5"></canvas></div></div>
+      <div class="kpi"><div class="kpi-top"><div class="kpi-lbl">AOV</div><div class="kpi-delta up">↑ 2.1%</div></div><div class="kpi-val">$26.2</div><div class="spark-wrap"><canvas class="sparkline" id="sp6"></canvas></div></div>
+    </div>
+
+    <!-- Sales by Year / Quarter / Month -->
+    <div class="g3">
+      <div class="card"><div class="card-title">Gross Sales by Year</div><div style="height:190px"><canvas id="byYear"></canvas></div></div>
+      <div class="card">
+        <div class="card-title">Gross Sales by Quarter</div>
+        <div class="card-legend">
+          <span><span class="ld" style="background:#c8c8c8"></span>2023</span>
+          <span><span class="ld" style="background:#999"></span>2024</span>
+          <span><span class="ld" style="background:#6fcf97"></span>2025</span>
+          <span><span class="ld" style="background:#004225"></span>2026</span>
+        </div>
+        <div style="height:165px"><canvas id="byQtr"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Gross Sales by Month</div>
+        <div class="card-legend">
+          <span><span class="ld" style="background:#b3b3b3"></span>2024</span>
+          <span><span class="ld" style="background:#6fcf97"></span>2025</span>
+          <span><span class="ld" style="background:#004225"></span>2026</span>
+        </div>
+        <div style="height:165px"><canvas id="byMonth"></canvas></div>
       </div>
     </div>
 
-    <!-- ═══════════ PPC OVERVIEW ═══════════ -->
-    <div class="page" id="page-ppc-overview">
-      <div class="filters-bar">
-        <div class="filter-select"><select><option>Market Place</option></select></div>
-        <div class="filter-select"><select><option>Campaign Types</option></select></div>
-        <div class="filter-select"><select><option>Products</option></select></div>
-        <div class="filters-spacer"></div>
-        <div class="filter-btn">By Month</div>
-        <div class="filter-btn">📅 Start Date</div>
-        <div class="filter-btn">📅 End Date</div>
+    <!-- Product Breakdown + State -->
+    <div class="g3m">
+      <div class="card">
+        <div class="card-title">Gross Sales by Product</div>
+        <div class="hbar-list" id="prod-bars"></div>
       </div>
-
-      <div class="chart-grid-2" style="margin-bottom:14px">
-        <div class="chart-card" style="margin:0">
-          <div class="chart-header">
-            <div>
-              <div class="chart-title">Gross Sales vs Ad Sales %</div>
-              <div style="font-size:20px;font-weight:700;margin-top:4px">$48,574.21 <span style="font-size:12px;color:var(--green-500)">↑ +20%</span></div>
-            </div>
-            <div class="chart-legend">
-              <span><span class="legend-dot" style="background:#0D2B1A"></span>Gross Sales</span>
-              <span><span class="legend-dot" style="background:#4CAF75"></span>Ad Sales</span>
-            </div>
-          </div>
-          <div style="height:160px"><canvas id="ppcMainChart"></canvas></div>
-        </div>
-        <div class="chart-card" style="margin:0">
-          <div class="chart-header">
-            <div class="chart-title">Ad Sales vs Ad Spend</div>
-          </div>
-          <div style="height:160px"><canvas id="adSalesSpendChart"></canvas></div>
-        </div>
+      <div class="card">
+        <div class="card-title">Gross Sales by Product</div>
+        <div style="height:195px;display:flex;align-items:center;justify-content:center"><canvas id="prodPie" width="180" height="180"></canvas></div>
+        <div style="font-size:10.5px;color:var(--muted);text-align:center;margin-top:2px">Brutus Bone Broth — 72%</div>
       </div>
-
-      <div class="chart-grid-3">
-        <div class="chart-card" style="margin:0">
-          <div class="chart-header"><div class="chart-title">Ad Sales By Product</div></div>
-          <div class="bar-list">
-            <div class="bar-row"><div class="bar-label">FBA Subscribe & Save Disc.</div><div class="bar-track"><div class="bar-fill" style="width:100%">120k</div></div></div>
-            <div class="bar-row"><div class="bar-label">Subscribe & Save Promotion</div><div class="bar-track"><div class="bar-fill" style="width:67%">80k</div></div></div>
-            <div class="bar-row"><div class="bar-label">FBA Subscribe & Save Disc.</div><div class="bar-track"><div class="bar-fill" style="width:58%">70k</div></div></div>
-            <div class="bar-row"><div class="bar-label">Subscribe & Save Promotion</div><div class="bar-track"><div class="bar-fill" style="width:50%">60k</div></div></div>
-            <div class="bar-row"><div class="bar-label">FBA Subscribe & Save Disc.</div><div class="bar-track"><div class="bar-fill" style="width:42%">50k</div></div></div>
-            <div class="bar-row"><div class="bar-label">Subscribe & Save Promotion</div><div class="bar-track"><div class="bar-fill" style="width:33%">40k</div></div></div>
-            <div class="bar-row"><div class="bar-label">Subscribe & Save Promotion</div><div class="bar-track"><div class="bar-fill" style="width:5%;background:var(--gray-200);color:var(--text-muted)">0k</div></div></div>
-          </div>
-        </div>
-
-        <div class="chart-card" style="margin:0">
-          <div class="chart-header"><div class="chart-title">ACoS %</div></div>
-          <div class="gauge-wrap">
-            <canvas id="overallAcosGauge" width="140" height="80"></canvas>
-            <div class="gauge-value">22%</div>
-            <div class="gauge-label">Overall ACoS %</div>
-          </div>
-          <div style="height:14px"></div>
-          <canvas id="currentAcosGauge" width="140" height="80" style="display:block;margin:auto"></canvas>
-          <div style="text-align:center">
-            <div class="gauge-value">14%</div>
-            <div class="gauge-label">Current ACoS %</div>
-          </div>
-        </div>
-
-        <div class="chart-card" style="margin:0">
-          <div class="chart-header"><div class="chart-title">Ad Sales vs Other Sales</div></div>
-          <div class="donut-wrap">
-            <canvas id="adVsOtherDonut" width="120" height="120"></canvas>
-          </div>
-          <div class="chart-legend" style="justify-content:center;margin-bottom:12px">
-            <span><span class="legend-dot" style="background:#0D2B1A"></span>Ad Sales</span>
-            <span><span class="legend-dot" style="background:#4CAF75"></span>Other Sales</span>
-          </div>
-          <div class="chart-header" style="margin-top:10px;margin-bottom:8px"><div class="chart-title">Ad Sales By Campaign</div></div>
-          <div class="donut-wrap" style="height:80px">
-            <canvas id="campaignDonut" width="80" height="80"></canvas>
-          </div>
-          <div style="font-size:10.5px;color:var(--text-muted);text-align:center;margin-top:4px">
-            Cat 1: $50k &nbsp;·&nbsp; Cat 2: $15k &nbsp;·&nbsp; Cat 3: $19k
-          </div>
-        </div>
+      <div class="card">
+        <div class="card-title">Gross Sales by State</div>
+        <div class="hbar-list" id="state-bars"></div>
       </div>
     </div>
 
-    <!-- ═══════════ PPC PERFORMANCE ═══════════ -->
-    <div class="page" id="page-ppc-performance">
-      <div class="filters-bar">
-        <div class="filter-select"><select><option>Market Place</option></select></div>
-        <div class="filter-select"><select><option>Campaign Types</option></select></div>
-        <div class="filter-select"><select><option>Products</option></select></div>
-        <div class="filters-spacer"></div>
-        <div class="filter-btn">By Month</div>
-        <div class="filter-btn">📅 Start Date</div>
-        <div class="filter-btn">📅 End Date</div>
+    <!-- Top Performers + Daily Sales Trend -->
+    <div class="g3l">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <!-- Top Performers -->
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <div style="padding:3px 8px;background:#d4f1e1;border-radius:5px;font-size:10.5px;font-weight:900;color:var(--green)">MTD Top Performers</div>
+            <span style="font-size:9.5px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">MTD MOM %</span>
+          </div>
+          <div id="top-perf"></div>
+        </div>
+        <!-- Top Decliners -->
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <div style="padding:3px 8px;background:var(--red-lt);border-radius:5px;font-size:10.5px;font-weight:900;color:var(--red)">MTD Top Decliners</div>
+            <span style="font-size:9.5px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">MTD MOM %</span>
+          </div>
+          <div id="top-decl"></div>
+        </div>
       </div>
-
-      <div class="table-wrap" style="margin-bottom:14px">
-        <table class="data-table">
-          <thead>
-            <tr><th>Metric ↑</th><th>1/1/25</th><th>1/2/25</th><th>1/3/25</th><th>1/4/25</th><th>1/5/25</th><th>1/6/25</th><th>1/7/25</th><th>Total</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Gross Sales</td><td>$5,432</td><td>$12</td><td>$432</td><td>$599</td><td>$22</td><td>$431</td><td>$87</td><td style="font-weight:700">$1875</td></tr>
-            <tr><td>Ad Sales</td><td>$5,432</td><td>$5,432</td><td>$5,432</td><td>$432</td><td>$532</td><td>$132.0</td><td>$5,432</td><td style="font-weight:700">$187</td></tr>
-            <tr><td>Ad Spend</td><td>$19.99</td><td>$12</td><td>$8,750</td><td>$12</td><td>$99</td><td>$875</td><td>$999</td><td style="font-weight:700">$15.43</td></tr>
-            <tr><td>ACoS% (Actual)</td><td>↑ 29%</td><td>↑ 14%</td><td>↓ 3%</td><td>↑ 34</td><td>↑ 43</td><td>↑ 2</td><td>↓ 44%</td><td style="font-weight:700">5%</td></tr>
-            <tr><td>TACoS %</td><td>16.4%</td><td>84%</td><td>14%</td><td>16%</td><td>16.4%</td><td>24%</td><td>84%</td><td style="font-weight:700">91%</td></tr>
-            <tr><td>COGS</td><td>$4,444</td><td>$144</td><td>$4,444</td><td>$4</td><td>$4,444</td><td>$144</td><td>$4,444</td><td style="font-weight:700">$10,340</td></tr>
-            <tr><td>RoAS</td><td>$1,980</td><td>$980</td><td>$180</td><td>$199</td><td>$980</td><td>$180</td><td>$1</td><td style="font-weight:700">$7,633</td></tr>
-            <tr><td>Impressions</td><td>$3,991</td><td>$991</td><td>$3991</td><td>$3,991</td><td>$3,991</td><td>$991</td><td>$3,991</td><td style="font-weight:700">$7,22</td></tr>
-            <tr><td>Clicks</td><td>$275</td><td>$275</td><td>$275</td><td>$275</td><td>$750</td><td>$275</td><td>$2</td><td style="font-weight:700">$342</td></tr>
-            <tr><td>CTR %</td><td>14%</td><td>14%</td><td>34%</td><td>22%</td><td>14%</td><td>74%</td><td>14%</td><td style="font-weight:700">54%</td></tr>
-            <tr><td>Orders</td><td>$312</td><td>$312</td><td>$12</td><td>$312</td><td>$312</td><td>$312</td><td>$31</td><td style="font-weight:700">$3,283</td></tr>
-            <tr class="total-row"><td>CPO</td><td>$4,175</td><td>$1,175</td><td>$175</td><td>$123</td><td>$10,175</td><td>$111</td><td>$121</td><td style="font-weight:700">$6,6012</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="chart-card">
-        <div class="chart-header">
-          <div class="chart-title">PPC Performance</div>
-          <div class="chart-legend">
-            <span><span class="legend-dot" style="background:#0D2B1A"></span>Ad Sales</span>
-            <span><span class="legend-dot" style="background:#4CAF75"></span>Ad Spend</span>
-            <span><span class="legend-dot" style="background:#D4F1E1"></span>Gross Sales</span>
+      <!-- Daily Sales Trend -->
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:10px">
+          <div class="card-title" style="margin:0">Daily Sales Trend</div>
+          <div class="card-legend" style="margin:0">
+            <span><span class="ld" style="background:#004225"></span>MTD Sales</span>
+            <span><span class="ld" style="background:#6fcf97"></span>Sales LM</span>
+            <span><span class="ld" style="background:#b3b3b3"></span>Sales LY</span>
           </div>
         </div>
-        <div style="height:180px"><canvas id="ppcPerfChart"></canvas></div>
+        <div style="height:280px"><canvas id="dailyTrend"></canvas></div>
       </div>
     </div>
 
-    <!-- ═══════════ PPC PRODUCT PERFORMANCE ═══════════ -->
-    <div class="page" id="page-ppc-product">
-      <div class="filters-bar">
-        <div class="filter-select"><select><option>Market Place</option></select></div>
-        <div class="filter-select"><select><option>Campaign Types</option></select></div>
-        <div class="filter-select"><select><option>Products</option></select></div>
-        <div class="filters-spacer"></div>
-        <div class="filter-btn">By Month</div>
-        <div class="filter-btn">📅 Start Date</div>
-        <div class="filter-btn">📅 End Date</div>
+    <!-- AI Insights -->
+    <div class="insight-box">
+      <div class="insight-hdr">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v3l2 2"/></svg>
+        <span>AI Insights — Executive Summary</span>
       </div>
-
-      <div class="table-wrap" style="margin-bottom:14px">
-        <table class="data-table">
-          <thead>
-            <tr><th>Product(s) ↑</th><th>Gross Sales</th><th>Ad Sales</th><th>Ad Spend</th><th>ACoS%</th><th>TACoS%</th><th>COGS</th><th>COGS%</th><th>Selling Fees</th><th>FBA Fees</th><th>Impressions</th><th>Clicks</th><th>Orders</th><th>Total</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Brutus Bone Broth</td><td>$54</td><td>$12</td><td>$432</td><td>$599</td><td>$22</td><td>$431</td><td>$871</td><td>$32.1</td><td>$880</td><td>$532</td><td>32</td><td>$5,432.0</td><td style="font-weight:700">$1875.00</td></tr>
-            <tr><td>BB Beef + Chicken</td><td>$432</td><td>$532</td><td>$32</td><td>$432</td><td>$58</td><td>$500</td><td>$5,432</td><td>$59</td><td>$532.0</td><td>$432</td><td>90</td><td>$532</td><td style="font-weight:700">$875</td></tr>
-            <tr><td>BB Beef + Pork</td><td>$599</td><td>$12,30</td><td>$8,750</td><td>$12,30</td><td>$500</td><td>$999</td><td>$750</td><td>$190</td><td>$8,750.0</td><td>$999</td><td>99</td><td>$1.43</td><td style="font-weight:700">$1.43</td></tr>
-            <tr><td>BB Beef + Biscuits</td><td>↑ 28.1%</td><td>↑ 18.4%</td><td>↑ 34.1%</td><td>↑ 34.2</td><td>↑ 43.2</td><td>↑ 32.1</td><td>↑ 44%</td><td>↑ 11.2%</td><td>↑ 22.1%</td><td>↑ 9.1%</td><td>↑ 2.1%</td><td>↑ 91%</td><td style="font-weight:700">5%</td></tr>
-            <tr><td>Bundle Brutus Bone Broth Instant</td><td>$590</td><td>$750</td><td>$8,750</td><td>$850</td><td>$500</td><td>$750</td><td>$85</td><td>$50</td><td>$97</td><td>$7500</td><td>$500</td><td>$1750</td><td style="font-weight:700">$99,800</td></tr>
-            <tr class="total-row"><td>Total</td><td>$241</td><td>$26</td><td>$20</td><td>$200</td><td>$200</td><td>$400</td><td>$2000</td><td>$298</td><td>$287</td><td>$2,600</td><td>$600.0</td><td>$289</td><td style="font-weight:700">12.00%</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="tag-pills">
-        <div class="tag-pill active">Ad Sales</div>
-        <div class="tag-pill">Ad Spend</div>
-        <div class="tag-pill">ACoS%</div>
-        <div class="tag-pill">TACoS%</div>
-        <div class="tag-pill">RoAs</div>
-        <div class="tag-pill">Impressions</div>
-        <div class="tag-pill">Clicks</div>
-        <div class="tag-pill">CPC</div>
-        <div class="tag-pill">CTR%</div>
-        <div class="tag-pill">CVR%</div>
-        <div class="tag-pill">CPO</div>
-        <div class="tag-pill">CPM</div>
-        <div class="tag-pill">BuyBox</div>
-        <div class="tag-pill">DOS</div>
-      </div>
-
-      <div class="table-wrap-tall">
-        <table class="data-table">
-          <thead>
-            <tr><th>Date</th><th colspan="5" style="text-align:center">1/1/25</th><th colspan="5" style="text-align:center">1/2/25</th><th colspan="3" style="text-align:center">1/7/25</th><th>Total</th></tr>
-            <tr><th>Product(s) ↓</th><th>Gross Sales</th><th>Ad Sales</th><th>Ad Spend</th><th>ACoS%</th><th>TACoS%</th><th>Gross Sales</th><th>Ad Sales</th><th>Ad Spend</th><th>ACoS%</th><th>TACoS%</th><th>COGS</th><th>Selling Fees</th><th>FBA Fees</th><th>Total</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Brutus Bone Broth</td><td>$5,432</td><td>$12.30</td><td>$432.0</td><td>$5.99</td><td>$22</td><td>$431</td><td>$871</td><td>$32.1</td><td>$880</td><td>$33.2</td><td>$5,432</td><td>$32.1</td><td>$5,432</td><td style="font-weight:700">$1875</td></tr>
-            <tr><td>BB Beef + Chicken</td><td>$5,432</td><td>$5,432</td><td>$5,432</td><td>$5,432</td><td>$5,432</td><td>$500</td><td>$5,432</td><td>$5,432</td><td>$5,432</td><td>$5,432</td><td>$5,432</td><td>$5,432</td><td>$5,432</td><td style="font-weight:700">$1875</td></tr>
-            <tr><td>BB Beef + Pork</td><td>$5399</td><td>$2</td><td>$8,750</td><td>$12</td><td>$999,99</td><td>$8,750</td><td>$999,99</td><td>$8,750</td><td>$12</td><td>$999,98</td><td>$8,750</td><td>$986,99</td><td>$8,750</td><td style="font-weight:700">$15,432</td></tr>
-            <tr><td>BB Beef + Biscuits</td><td>↑ 28.1%</td><td>↑ 18.4%</td><td>↑ 34.1%</td><td>↑ 34.2</td><td>↑ 43.2</td><td>↑ 32.1</td><td>↑ 44%</td><td>↑ 11.2%</td><td>↑ 22.1%</td><td>↑ 9.1%</td><td>↑ 2.1%</td><td>↑ 92.1%</td><td>↑ 39.1%</td><td style="font-weight:700">5%</td></tr>
-            <tr class="total-row"><td>Total</td><td>$241</td><td>$200</td><td>$600</td><td>$29</td><td>$480</td><td>$2,60</td><td>$2,600</td><td>$2,60</td><td>$2,600</td><td>$2,60</td><td>$285</td><td>$200</td><td>$12.00</td><td style="font-weight:700">12.00%</td></tr>
-          </tbody>
-        </table>
+      <div class="insight-items">
+        <div class="insight-item"><div class="insight-dot"></div>Gross Sales are up 12.4% MTD driven by strong performance in Brutus Bone Broth (72% of revenue) and improving Q1 2026 momentum.</div>
+        <div class="insight-item"><div class="insight-dot"></div>TACoS improved to 8.5% (↓1.2%) indicating improved advertising efficiency relative to total sales — a positive signal for profitability.</div>
+        <div class="insight-item"><div class="insight-dot"></div>Refunds of $(123,222) represent a 3.2% decrease — monitor Return Rate (1.6%) closely as it remains slightly elevated vs. category benchmark.</div>
+        <div class="insight-item"><div class="insight-dot"></div>California ($1.0M), Florida ($556K) and Texas ($538K) lead by state — consider geo-targeted promotions in underperforming regions.</div>
       </div>
     </div>
 
-    <!-- ═══════════ P&L ═══════════ -->
-    <div class="page" id="page-pl">
-      <div class="filters-bar">
-        <div class="filter-select"><select><option>Market Place</option></select></div>
-        <div class="filter-select"><select><option>Product</option></select></div>
-        <div class="filters-spacer"></div>
-        <div class="filter-btn">📅 Start Date</div>
-        <div class="filter-btn">📅 End Date</div>
-      </div>
-
-      <div class="chart-card" style="margin-bottom:14px">
-        <div class="chart-header">
-          <div>
-            <div class="chart-title">Profit and Loss</div>
-            <div style="font-size:20px;font-weight:700;margin-top:4px">$48,574.21 <span style="font-size:12px;color:var(--green-500)">↑ +20%</span></div>
-          </div>
-          <div class="chart-legend">
-            <span><span class="legend-dot" style="background:#0D2B1A"></span>Net Margin</span>
-            <span><span class="legend-dot" style="background:#4CAF75"></span>Paid Media Spend%</span>
-            <span><span class="legend-dot" style="background:#6FCF97"></span>FBA Fulfillment Fees%</span>
-            <span><span class="legend-dot" style="background:#E85555"></span>Refunds%</span>
-          </div>
-        </div>
-        <div style="height:200px"><canvas id="plChart"></canvas></div>
-      </div>
-
-      <div class="table-wrap-tall">
-        <table class="data-table">
-          <thead>
-            <tr><th>Metric ↑</th><th>1/1/25</th><th>1/2/25</th><th>1/3/25</th><th>1/4/25</th><th>1/5/25</th><th>1/6/25</th><th>1/7/25</th><th>Total</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Orders</td><td>$875.00</td><td>$875.00</td><td>$999.99</td><td>$875.00</td><td>$875.00</td><td>$975.00</td><td>$975.00</td><td style="font-weight:700">$1875.00</td></tr>
-            <tr><td style="color:var(--red)">Refunds</td><td>$5,432.0</td><td>$4,444.0</td><td>$3,332.0</td><td>$1,132.0</td><td>$15,432.0</td><td>$6,432.0</td><td>$7,432.0</td><td style="font-weight:700;color:var(--red)">$15,432.0</td></tr>
-            <tr><td>Gross Sales</td><td>$999.99</td><td>$10,340.0</td><td>$875.00</td><td>$999.99</td><td>$999.99</td><td>$9,800.0</td><td>$999.99</td><td style="font-weight:700">$12,999.9</td></tr>
-            <tr><td>Net Sales</td><td>$8,750.0</td><td>$9,800.0</td><td>$8,750.0</td><td>$8,750.0</td><td>$8,750.0</td><td>$10,340.0</td><td>$8,750.0</td><td style="font-weight:700">$81,750.0</td></tr>
-            <tr><td>COGS</td><td>$9,800.0</td><td>$8,750.0</td><td>$9,800.0</td><td>$9,800.0</td><td>$9,800.0</td><td>$9,800.0</td><td>$9,800.0</td><td style="font-weight:700">$99,800.0</td></tr>
-            <tr><td>COGS (%)</td><td>28.1%</td><td>28.1%</td><td>28.1%</td><td>28.1%</td><td>28.1%</td><td>28.1%</td><td>28.1%</td><td style="font-weight:700">39.1%</td></tr>
-            <tr><td>Cost of Advertising</td><td>$2,600.0</td><td>$7,220.0</td><td>$2,600.0</td><td>$2,600.0</td><td>$2,600.0</td><td>$2,600.0</td><td>$2,600.0</td><td style="font-weight:700">$29,600.0</td></tr>
-            <tr><td>Amazon Fees</td><td>$7,220.0</td><td>$1,990.0</td><td>$7,220.0</td><td>$7,220.0</td><td>$7,220.0</td><td>$7,220.0</td><td>$7,220.0</td><td style="font-weight:700">$77,220.0</td></tr>
-            <tr><td>EBITDA</td><td>14%</td><td>24%</td><td>12%</td><td>13%</td><td>20%</td><td>19%</td><td>15%</td><td style="font-weight:700;color:var(--green-600)">14%</td></tr>
-            <tr class="total-row"><td>AOV</td><td>$10,175.00</td><td>$312.00</td><td>$10,175.00</td><td>$10,175.00</td><td>$10,175.00</td><td>$10,175.00</td><td>$10,175.00</td><td style="font-weight:700">$19,175.00</td></tr>
-          </tbody>
-        </table>
-      </div>
+    <!-- Product Performance Table -->
+    <div class="card" style="overflow-x:auto">
+      <div class="card-title" style="margin-bottom:12px">Product Performance — Daily Breakdown</div>
+      <table class="dt" style="min-width:1200px">
+        <thead>
+          <tr>
+            <th style="position:sticky;left:0;background:#f7f7f3;z-index:2">Product</th>
+            <th class="num">3/1</th><th class="num">3/2</th><th class="num">3/3</th><th class="num">3/4</th><th class="num">3/5</th><th class="num">3/6</th><th class="num">3/7</th>
+            <th class="num">3/8</th><th class="num">3/9</th><th class="num">3/10</th><th class="num">3/11</th><th class="num">3/12</th><th class="num">3/13</th><th class="num">3/14</th>
+            <th class="num" style="background:#f0f0e8">MTD Sales</th>
+            <th class="num" style="background:#f0f0e8">MTD MOM $</th>
+            <th class="num" style="background:#f0f0e8">MTD MOM %</th>
+            <th class="num" style="background:#f0f0e8">MTD YOY $</th>
+            <th class="num" style="background:#f0f0e8">MTD YOY %</th>
+            <th class="num">YTD Sales</th>
+            <th class="num">YTD YOY $</th>
+            <th class="num">YTD YOY %</th>
+          </tr>
+        </thead>
+        <tbody id="prod-table"></tbody>
+      </table>
     </div>
+      </div><!-- /page-body -->
+  </div><!-- /executive -->
 
-    <!-- ═══════════ INVENTORY OVERVIEW ═══════════ -->
-    <div class="page" id="page-inventory-overview">
-      <div class="filters-bar">
-        <div class="filter-select"><select><option>Accounts</option></select></div>
-        <div class="filters-spacer"></div>
-        <div class="filter-select"><select><option>Rolling Daily Average</option></select></div>
+  <!-- ════════════════ SALES PERFORMANCE ════════════════ -->
+  <div class="page" id="pg-sales-performance">
+    <div class="page-top"><div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:2px"><svg style="width:20px;height:20px;color:var(--muted);margin-top:4px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg><div><h1 style="font-size:22px;font-weight:900;color:var(--txt);margin:0">Sales Performance</h1><p style="font-size:13px;color:var(--muted);margin-top:3px">Daily and weekly sales breakdown</p></div></div>
+    <div class="fbar" style="display:flex;align-items:center;gap:0;padding:12px 0 14px;flex-wrap:nowrap;">
+        <div style="font-size:10px;font-weight:900;color:#9ca3af;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;margin-right:8px;">Date Range</div>
+        <div class="fsel"><select><option>MTD</option><option>QTD</option><option>YTD</option><option>Last 30 Days</option></select></div>
+        <div style="font-size:10px;font-weight:900;color:#9ca3af;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;margin-left:20px;margin-right:8px;">Marketplace</div>
+        <div class="fsel"><select>
+          <option>All Marketplaces</option>
+          <option>Amazon US</option>
+          <option>Amazon CA</option>
+          <option>Amazon MX</option>
+          <option>Amazon UK</option>
+          <option>Amazon DE</option>
+          <option>Amazon FR</option>
+          <option>Amazon IT</option>
+          <option>Amazon ES</option>
+          <option>Amazon JP</option>
+          <option>Amazon AU</option>
+        </select></div>
+        <div style="font-size:10px;font-weight:900;color:#9ca3af;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;margin-left:20px;margin-right:8px;">Product</div>
+        <div class="fsel"><select>
+          <option>All Products</option>
+          <option>Product-1</option>
+          <option>Product-2</option>
+          <option>Product-3</option>
+          <option>Product-4</option>
+          <option>Product-5</option>
+          <option>Product-6</option>
+          <option>Product-7</option>
+        </select></div>
+        <div class="flbl">Period</div>
+        <div class="fsel"><select><option>By Month</option><option>By Week</option><option>By Day</option></select></div>
       </div>
-
-      <div class="inv-grid">
-        <div class="inv-card">
-          <div class="inv-card-title green">Revenue and Profitability Effect</div>
-          <div class="inv-metric">
-            <div class="inv-metric-label">Last 30 days Revenue and Units</div>
-            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:4px">
-              <div><div class="inv-metric-value green">$10,566.01</div><div class="inv-metric-sub">Revenue</div></div>
-              <div><div class="inv-metric-value" style="font-size:20px">432</div><div class="inv-metric-sub">Units</div></div>
-            </div>
-          </div>
-          <div class="inv-metric" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
-            <div class="inv-metric-label">Total Value of Inventory (COGS)</div>
-            <div class="inv-metric-value" style="font-size:16px">$15,269</div>
-          </div>
-          <div class="inv-metric" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
-            <div class="inv-metric-label">OOS Impact On Revenue (Last 30 Days)</div>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
-              <div class="inv-metric-value red">$10,566.01<div class="inv-metric-sub" style="color:var(--red)">Revenue</div></div>
-              <div class="inv-metric-value green">0%<div class="inv-metric-sub" style="color:var(--green-600)">Promotion</div></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="inv-card">
-          <div class="inv-card-title" style="color:var(--green-600)">Inventory Health</div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-            <div><div class="inv-metric-label">Number of SKUs</div><div style="font-size:22px;font-weight:700">20</div><div class="inv-metric-sub">Active</div></div>
-            <div><div class="inv-metric-label">&nbsp;</div><div style="font-size:22px;font-weight:700;color:var(--green-600)">6</div><div class="inv-metric-sub" style="color:var(--green-600)">Healthy</div></div>
-          </div>
-          <div style="padding-top:8px;border-top:1px solid var(--border);margin-bottom:8px">
-            <div class="inv-metric-label">SKUs Requiring Actions</div>
-            <div style="display:flex;gap:16px;margin-top:4px">
-              <div><div style="font-size:18px;font-weight:700;color:var(--red)">0</div><div class="inv-metric-sub" style="color:var(--red)">OOS</div></div>
-              <div><div style="font-size:18px;font-weight:700;color:var(--amber)">0</div><div class="inv-metric-sub" style="color:var(--amber)">At Risk</div></div>
-              <div><div style="font-size:18px;font-weight:700;color:var(--blue)">12</div><div class="inv-metric-sub" style="color:var(--blue)">Excess</div></div>
-            </div>
-          </div>
-          <div style="padding-top:8px;border-top:1px solid var(--border)">
-            <div class="inv-metric-label">SKUs with Restock Priority</div>
-            <div style="display:flex;gap:16px;margin-top:4px">
-              <div><div style="font-size:16px;font-weight:700;color:var(--red)">0</div><div class="inv-metric-sub">Urgent OOS</div></div>
-              <div><div style="font-size:16px;font-weight:700;color:var(--amber)">2</div><div class="inv-metric-sub">Important &lt;30 DOS</div></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="inv-card">
-          <div class="inv-card-title" style="color:var(--gray-600)">Consumer Impact</div>
-          <div style="text-align:center;margin:16px 0">
-            <div class="inv-metric-label">80/20 SKUs In-Stock</div>
-            <div style="font-size:28px;font-weight:700;color:var(--green-600)">100%</div>
-          </div>
-          <div style="padding-top:8px;border-top:1px solid var(--border);margin-bottom:8px">
-            <div class="inv-metric-label">Return Rate (Last 30 Days)</div>
-            <div style="font-size:18px;font-weight:700;color:var(--red)">1.1%</div>
-            <div class="inv-metric-sub">Return Rate</div>
-          </div>
-          <div style="padding-top:8px;border-top:1px solid var(--border)">
-            <div class="inv-metric-label">Refunds (Last 30 Days)</div>
-            <div style="font-size:18px;font-weight:700">$289</div>
-            <div class="inv-metric-sub">Refunds</div>
-          </div>
-        </div>
-
-        <div class="inv-card">
-          <div class="inv-card-title blue">Inventory Age</div>
-          <div style="height:120px"><canvas id="invAgeChart"></canvas></div>
-          <div class="chart-legend" style="flex-wrap:wrap;gap:6px;margin-top:6px;font-size:10px">
-            <span><span class="legend-dot" style="background:#0D2B1A"></span>0-90</span>
-            <span><span class="legend-dot" style="background:#4CAF75"></span>91-180</span>
-            <span><span class="legend-dot" style="background:#A8E6C0"></span>181-270</span>
-            <span><span class="legend-dot" style="background:#E85555"></span>365+</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="inv-section-grid">
-        <div class="inv-card">
-          <div class="inv-card-title red">Not Available Inventory</div>
-          <table class="inv-mini-table">
-            <tr><th>DOS Level</th><th>No of ASIN</th><th>Sales</th><th>Sales Mix</th></tr>
-            <tr><td>OOS</td><td>1</td><td>$0</td><td>0%</td></tr>
-          </table>
-          <div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--border)">
-            <table class="inv-mini-table">
-              <tr><th>ASIN</th><th>Sales</th><th>DOS</th></tr>
-              <tr><td>B00SDJC37N</td><td>$0</td><td>—</td></tr>
-            </table>
-          </div>
-        </div>
-        <div class="inv-card">
-          <div class="inv-card-title amber">At Risk Inventory</div>
-          <table class="inv-mini-table">
-            <tr><th>DOS Level</th><th>No of ASIN</th><th>Sales</th><th>Sales Mix</th></tr>
-            <tr><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-          </table>
-          <div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--border)">
-            <table class="inv-mini-table">
-              <tr><th>ASIN</th><th>Sales</th><th>DOS</th></tr>
-              <tr><td>—</td><td>—</td><td>—</td></tr>
-            </table>
-          </div>
-        </div>
-        <div class="inv-card">
-          <div class="inv-card-title green">Healthy Inventory</div>
-          <table class="inv-mini-table">
-            <tr><th>DOS Level</th><th>No of ASIN</th><th>Sales</th><th>Sales Mix</th></tr>
-            <tr><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-          </table>
-          <div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--border)">
-            <table class="inv-mini-table">
-              <tr><th>ASIN</th><th>Sales</th><th>DOS</th></tr>
-              <tr><td>—</td><td>—</td><td>—</td></tr>
-            </table>
-          </div>
-        </div>
-        <div class="inv-card">
-          <div class="inv-card-title blue">Excess Inventory</div>
-          <table class="inv-mini-table">
-            <tr><th>DOS Level</th><th>No of ASIN</th><th>Sales</th><th>Sales Mix</th></tr>
-            <tr><td>&gt;120</td><td>3</td><td>$12031.63</td><td>100%</td></tr>
-          </table>
-          <div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--border)">
-            <table class="inv-mini-table">
-              <tr><th>ASIN</th><th>Sales</th><th>DOS</th></tr>
-              <tr><td>B00SJD67N/L</td><td>$109.4</td><td>23360</td></tr>
-              <tr><td>B09WDV6P5T</td><td>$7455.8</td><td>1103</td></tr>
-              <tr><td>B005EH2PPC</td><td>$10469.33</td><td>101</td></tr>
-            </table>
-          </div>
+    <div style="height:14px"></div>
+    </div><!-- /page-top -->
+    <div class="page-body">
+    <div class="tw"><table class="dt"><thead><tr><th>Metric</th><th class="num">Jan</th><th class="num">Feb</th><th class="num">Mar</th><th class="num">Apr</th><th class="num">May</th><th class="num">Jun</th><th class="num">Jul</th><th class="num">Total</th></tr></thead><tbody>
+      <tr><td>Gross Sales (Daily Avg.)</td><td class="num">$475</td><td class="num">$58</td><td class="num">$59</td><td class="num">$5,875</td><td class="num">$5,875</td><td class="num">$4,675</td><td class="num">$6,375</td><td class="num"><b>$4,876</b></td></tr>
+      <tr><td>Gross Sales</td><td class="num">$5,432</td><td class="num">$1,644</td><td class="num">$10,332</td><td class="num">$142,319</td><td class="num">$125,432</td><td class="num">$11,432</td><td class="num">$6,432</td><td class="num"><b>$1,154K</b></td></tr>
+      <tr><td>Refunds</td><td class="num">$2,479</td><td class="num">$1,340</td><td class="num">$275</td><td class="num">$4,998</td><td class="num">$1,999</td><td class="num">$5,800</td><td class="num">$3,199</td><td class="num txt-r">$25,998</td></tr>
+      <tr><td>Net Sales</td><td class="num">$875</td><td class="num">$800</td><td class="num">$8,750</td><td class="num">$8,750</td><td class="num">$6,750</td><td class="num">$10,340</td><td class="num">$8,750</td><td class="num"><b>$81,750</b></td></tr>
+      <tr><td>Ad Spend</td><td class="num">$2,600</td><td class="num">$22</td><td class="num">$2,600</td><td class="num">$260</td><td class="num">$2,600</td><td class="num">$2,600</td><td class="num">$2,600</td><td class="num"><b>$29,600</b></td></tr>
+      <tr class="tot"><td>AOV</td><td class="num">$10,175</td><td class="num">$392</td><td class="num">$10,175</td><td class="num">$10,175</td><td class="num">$18,175</td><td class="num">$18,175</td><td class="num">$10,175</td><td class="num"><b>$19,175</b></td></tr>
+    </tbody></table></div>
+    <div class="g2">
+      <div class="card"><div class="card-title">Gross Sales vs Est. Gross Profit</div><div class="card-legend"><span><span class="ld" style="background:#004225"></span>Gross Sales</span><span><span class="ld" style="background:#6fcf97"></span>Gross Profit</span></div><div style="height:180px"><canvas id="spc"></canvas></div></div>
+      <div class="card"><div class="card-title">Order Status</div><div style="height:10px"></div>
+        <div class="sg">
+          <div class="scard shipped"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="8" width="13" height="11" rx="1.5"/><path d="M15 11h4l3 4v4h-7"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/></svg><div class="snum">140</div><div class="slbl">Shipped</div></div>
+          <div class="scard pending"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 3.5"/></svg><div class="snum">79</div><div class="slbl">Pending</div></div>
+          <div class="scard shipping"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 17H3a1 1 0 01-1-1V6a1 1 0 011-1h11a1 1 0 011 1v3"/><rect x="9" y="11" width="14" height="10" rx="1"/><circle cx="12" cy="21" r="1"/><circle cx="20" cy="21" r="1"/></svg><div class="snum">89</div><div class="slbl">Shipping</div></div>
+          <div class="scard cancelled"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg><div class="snum">123</div><div class="slbl">Cancelled</div></div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- ═══════════ INVENTORY MANAGEMENT ═══════════ -->
-    <div class="page" id="page-inventory-mgmt">
-      <div class="filters-bar">
-        <div class="filter-select"><select><option>Products</option></select></div>
-        <div class="filter-select"><select><option>Rolling Daily Avg</option></select></div>
-        <div class="filter-select"><select><option>FBA DoH Target</option></select></div>
-        <div class="filter-select"><select><option>Total DoH Target</option></select></div>
-        <div class="filters-spacer"></div>
-        <div class="filter-btn primary">📅 Snapshot Date</div>
+  <!-- ════════════════ PRODUCT PERFORMANCE ════════════════ -->
+  <div class="page" id="pg-product-performance">
+    <div class="page-top"><div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:2px"><svg style="width:20px;height:20px;color:var(--muted);margin-top:4px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg><div><h1 style="font-size:22px;font-weight:900;color:var(--txt);margin:0">Product Performance</h1><p style="font-size:13px;color:var(--muted);margin-top:3px">MTD performance by product</p></div></div>
+    <div class="fbar" style="display:flex;align-items:center;gap:0;padding:12px 0 14px;flex-wrap:nowrap;">
+        <div style="font-size:10px;font-weight:900;color:#9ca3af;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;margin-left:20px;margin-right:8px;">Marketplace</div>
+        <div class="fsel"><select>
+          <option>All Marketplaces</option>
+          <option>Amazon US</option>
+          <option>Amazon CA</option>
+          <option>Amazon MX</option>
+          <option>Amazon UK</option>
+          <option>Amazon DE</option>
+          <option>Amazon FR</option>
+          <option>Amazon IT</option>
+          <option>Amazon ES</option>
+          <option>Amazon JP</option>
+          <option>Amazon AU</option>
+        </select></div>
+        <div style="font-size:10px;font-weight:900;color:#9ca3af;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;margin-left:20px;margin-right:8px;">Product</div>
+        <div class="fsel"><select>
+          <option>All Products</option>
+          <option>Product-1</option>
+          <option>Product-2</option>
+          <option>Product-3</option>
+          <option>Product-4</option>
+          <option>Product-5</option>
+          <option>Product-6</option>
+          <option>Product-7</option>
+        </select></div>
       </div>
-
-      <div class="table-wrap" style="margin-bottom:14px">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>ASIN ↑</th><th>Fulfillable Qty</th><th>Unsalable Qty</th><th>Reserved CO Qty</th><th>Rolling Daily Avg</th><th>AMZ DoH</th><th>Inbound Working Qty</th><th>Replenish Qty</th><th>Lead Time</th><th>Total Demand Qty</th><th>Request Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td style="font-family:'DM Mono',monospace;font-size:11px">B0CYR5BSKM</td><td>875.00</td><td>1</td><td>20</td><td>875.00</td><td>875.00</td><td>1</td><td>85.00</td><td>1999</td><td>750.00</td><td><span style="color:var(--green-600);font-size:10px;font-weight:600">Working</span></td></tr>
-            <tr><td style="font-family:'DM Mono',monospace;font-size:11px">B0DFT7GBY8M</td><td>5,432.00</td><td>0</td><td>21</td><td>1,132.0</td><td>1432.0</td><td>1</td><td>2.0</td><td>32.0</td><td>222.00</td><td><span style="color:var(--green-600);font-size:10px;font-weight:600">Working</span></td></tr>
-            <tr><td style="font-family:'DM Mono',monospace;font-size:11px">B09B62348QR</td><td>999.99</td><td>0</td><td>18</td><td>1,290.0</td><td>999.0</td><td>1</td><td>19.99</td><td>0</td><td>340.0</td><td><span style="color:var(--amber);font-size:10px;font-weight:600">Pending</span></td></tr>
-            <tr><td style="font-family:'DM Mono',monospace;font-size:11px">B0F67CZYY4</td><td>8,750.00</td><td>0</td><td>17</td><td>750.0</td><td>8,750.0</td><td>0</td><td>9,800.0</td><td>50.0</td><td>130.0</td><td><span style="color:var(--green-600);font-size:10px;font-weight:600">Working</span></td></tr>
-            <tr><td style="font-family:'DM Mono',monospace;font-size:11px">B0B8D9OGO2N</td><td>9,800.00</td><td>0</td><td>12</td><td>800.0</td><td>9,800.0</td><td>0</td><td>800.0</td><td>80.0</td><td>50.0</td><td><span style="color:var(--green-600);font-size:10px;font-weight:600">Working</span></td></tr>
-            <tr><td style="font-family:'DM Mono',monospace;font-size:11px">B0DCYTI.87</td><td>29.1</td><td>0</td><td>2</td><td>29</td><td>28.1</td><td>0</td><td>28.1</td><td>28.1</td><td>800.0</td><td><span style="color:var(--amber);font-size:10px;font-weight:600">Review</span></td></tr>
-            <tr class="total-row"><td colspan="11" style="text-align:right;color:var(--text-muted);font-size:10.5px">Showing 6 of 18 ASINs</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="chart-card">
-        <div class="chart-header">
-          <div>
-            <div class="chart-title">Units Ordered vs Rolling Daily Avg</div>
-            <div style="font-size:18px;font-weight:700;margin-top:4px">$48,574.21 <span style="font-size:12px;color:var(--green-500)">↑ +20%</span></div>
-          </div>
-          <div class="chart-legend">
-            <span><span class="legend-dot" style="background:#0D2B1A"></span>Units Ordered</span>
-            <span><span class="legend-dot" style="background:#4CAF75"></span>Rolling Daily Avg</span>
-          </div>
+    <div style="height:14px"></div>
+    </div><!-- /page-top -->
+    <div class="page-body">
+    <div class="g7" style="grid-template-columns:repeat(5,1fr)">
+      <div class="kpi"><div class="kpi-top"><div class="kpi-lbl">MTD Sales</div><div class="kpi-delta up">↑ 35%</div></div><div class="kpi-val">$1,812,088</div></div>
+      <div class="kpi"><div class="kpi-top"><div class="kpi-lbl">MTD Sales LM</div><div class="kpi-delta up">↑ 12%</div></div><div class="kpi-val">$12,566</div></div>
+      <div class="kpi"><div class="kpi-top"><div class="kpi-lbl">MTD Sales LY</div><div class="kpi-delta dn">↓ 5%</div></div><div class="kpi-val">—</div></div>
+      <div class="kpi"><div class="kpi-top"><div class="kpi-lbl">MTD MOM%</div><div class="kpi-delta up">↑ 15%</div></div><div class="kpi-val">70%</div></div>
+      <div class="kpi"><div class="kpi-top"><div class="kpi-lbl">MTD YOY%</div><div class="kpi-delta up">↑ 11%</div></div><div class="kpi-val">0%</div></div>
+    </div>
+    <div class="g2l">
+      <div>
+        <div class="g2" style="margin-bottom:12px">
+          <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div class="card-title" style="margin:0">Top Performers</div><span class="badge g">MTD MOM%</span></div><div id="pp-perf"></div></div>
+          <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div class="card-title" style="margin:0">Top Decliners</div><span class="badge r">MTD MOM%</span></div><div id="pp-decl"></div></div>
         </div>
-        <div style="height:200px"><canvas id="invMgmtChart"></canvas></div>
+        <div class="tw"><table class="dt"><thead><tr><th>Product</th><th class="num">Jan</th><th class="num">Feb</th><th class="num">Mar</th><th class="num">Total</th></tr></thead><tbody>
+          <tr><td>Food Sensitivity Test</td><td class="num">$875</td><td class="num">$875</td><td class="num">$875</td><td class="num"><b>$875</b></td></tr>
+          <tr><td>AFL Pet Dried</td><td class="num">$10,340</td><td class="num">$10,340</td><td class="num">$10,340</td><td class="num"><b>$10,340</b></td></tr>
+          <tr class="tot"><td>Total</td><td class="num">$99,800</td><td class="num">$3,300</td><td class="num">$19,500</td><td class="num"><b>$20,800</b></td></tr>
+        </tbody></table></div>
       </div>
+      <div class="card"><div class="card-title">MTD Performance</div><div style="font-size:22px;font-weight:900;color:var(--green);margin:6px 0 2px">$8,574.21 <span style="font-size:12px;color:#16a34a">↑ 44%</span></div><div class="card-legend"><span><span class="ld" style="background:#004225"></span>Sales</span><span><span class="ld" style="background:#6fcf97"></span>LM</span><span><span class="ld" style="background:#d94040"></span>LY</span></div><div style="height:200px"><canvas id="prc"></canvas></div></div>
     </div>
+  </div>
 
-    <!-- ═══════════ PLACEHOLDER PAGES ═══════════ -->
-    <div class="page" id="page-sales-overview">
-      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;color:var(--text-muted);gap:8px">
-        <div style="font-size:32px">📊</div>
-        <div style="font-size:14px;font-weight:500">Sales Overview</div>
-        <div style="font-size:12px">Select a date range to view your sales data</div>
+  <!-- ════════════════ PPC OVERVIEW ════════════════ -->
+  <div class="page" id="pg-ppc-overview">
+    <div class="page-top"><div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:2px"><svg style="width:20px;height:20px;color:var(--muted);margin-top:4px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg><div><h1 style="font-size:22px;font-weight:900;color:var(--txt);margin:0">PPC Overview</h1><p style="font-size:13px;color:var(--muted);margin-top:3px">Advertising performance across all campaigns</p></div></div>
+    <div class="fbar" style="display:flex;align-items:center;gap:0;padding:12px 0 14px;flex-wrap:nowrap;">
+        <div style="font-size:10px;font-weight:900;color:#9ca3af;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;margin-left:20px;margin-right:8px;">Marketplace</div>
+        <div class="fsel"><select>
+          <option>All Marketplaces</option>
+          <option>Amazon US</option>
+          <option>Amazon CA</option>
+          <option>Amazon MX</option>
+          <option>Amazon UK</option>
+          <option>Amazon DE</option>
+          <option>Amazon FR</option>
+          <option>Amazon IT</option>
+          <option>Amazon ES</option>
+          <option>Amazon JP</option>
+          <option>Amazon AU</option>
+        </select></div>
+        <div class="flbl">Campaign</div>
+        <div class="fsel"><select><option>All Campaigns</option><option>Sponsored Products</option><option>Sponsored Brands</option><option>Sponsored Display</option></select></div>
       </div>
-    </div>
-    <div class="page" id="page-marketing">
-      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;color:var(--text-muted);gap:8px">
-        <div style="font-size:32px">📣</div>
-        <div style="font-size:14px;font-weight:500">Marketing Overview</div>
-        <div style="font-size:12px">Marketing attribution and campaign performance</div>
-      </div>
-    </div>
-    <div class="page" id="page-customer">
-      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;color:var(--text-muted);gap:8px">
-        <div style="font-size:32px">👥</div>
-        <div style="font-size:14px;font-weight:500">Customer Journey</div>
-        <div style="font-size:12px">Funnel analysis and customer behavior insights</div>
-      </div>
-    </div>
-    <div class="page" id="page-cost-details">
-      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;color:var(--text-muted);gap:8px">
-        <div style="font-size:32px">💰</div>
-        <div style="font-size:14px;font-weight:500">Cost Details</div>
-        <div style="font-size:12px">Detailed breakdown of all cost categories</div>
-      </div>
-    </div>
-    <div class="page" id="page-inventory-age">
-      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;color:var(--text-muted);gap:8px">
-        <div style="font-size:32px">📦</div>
-        <div style="font-size:14px;font-weight:500">Inventory Age</div>
-        <div style="font-size:12px">Age distribution and aging risk analysis</div>
-      </div>
-    </div>
-    <div class="page" id="page-listing-mgmt">
-      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;color:var(--text-muted);gap:8px">
-        <div style="font-size:32px">📋</div>
-        <div style="font-size:14px;font-weight:500">Listing Management</div>
-        <div style="font-size:12px">Manage and optimize your product listings</div>
-      </div>
-    </div>
-    <div class="page" id="page-review">
-      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;color:var(--text-muted);gap:8px">
-        <div style="font-size:32px">⭐</div>
-        <div style="font-size:14px;font-weight:500">Review and Ratings</div>
-        <div style="font-size:12px">Customer reviews and product rating trends</div>
-      </div>
-    </div>
+    <div style="height:14px"></div>
+    </div><!-- /page-top -->
+    <div class="page-body">
+    <div class="g2"><div class="card"><div class="card-title">Gross Sales vs Ad Sales %</div><div style="font-size:20px;font-weight:900;color:var(--green);margin:4px 0 2px">$48,574.21 <span style="font-size:12px;color:#16a34a">↑ +20%</span></div><div class="card-legend"><span><span class="ld" style="background:#004225"></span>Gross Sales</span><span><span class="ld" style="background:#6fcf97"></span>Ad Sales</span></div><div style="height:160px"><canvas id="pmc"></canvas></div></div><div class="card"><div class="card-title">Ad Sales vs Ad Spend</div><div class="card-legend"><span><span class="ld" style="background:#004225"></span>Ad Sales</span><span><span class="ld" style="background:#6fcf97"></span>Ad Spend</span></div><div style="height:180px"><canvas id="asc"></canvas></div></div></div>
+    <div class="g3"><div class="card"><div class="card-title">Ad Sales by Product</div><div class="hbar-list" style="margin-top:6px"><div class="hbar-row"><div class="hbar-lbl">FBA Sub &amp; Save</div><div class="hbar-trk"><div class="hbar-fil" style="width:100%;background:#004225"></div></div><div class="hbar-val">$120K</div></div><div class="hbar-row"><div class="hbar-lbl">Sub &amp; Save Promo</div><div class="hbar-trk"><div class="hbar-fil" style="width:67%;background:#004225"></div></div><div class="hbar-val">$80K</div></div><div class="hbar-row"><div class="hbar-lbl">Sponsored Brand</div><div class="hbar-trk"><div class="hbar-fil" style="width:58%;background:#004225"></div></div><div class="hbar-val">$70K</div></div><div class="hbar-row"><div class="hbar-lbl">Sponsored Product</div><div class="hbar-trk"><div class="hbar-fil" style="width:42%;background:#004225"></div></div><div class="hbar-val">$50K</div></div></div></div><div class="card"><div class="card-title" style="margin-bottom:14px">ACoS %</div><div style="display:flex;flex-direction:column;align-items:center"><canvas id="oa" width="140" height="72"></canvas><div style="font-size:26px;font-weight:900;margin-top:-6px">22%</div><div style="font-size:11px;color:var(--muted);font-weight:700">Overall ACoS</div></div><div class="div"></div><div style="display:flex;flex-direction:column;align-items:center"><canvas id="ca" width="140" height="72"></canvas><div style="font-size:26px;font-weight:900;margin-top:-6px">14%</div><div style="font-size:11px;color:var(--muted);font-weight:700">Current ACoS</div></div></div><div class="card"><div class="card-title" style="margin-bottom:8px">Ad vs Other Sales</div><div style="height:120px;display:flex;align-items:center;justify-content:center"><canvas id="avo" width="120" height="120"></canvas></div><div class="card-legend" style="justify-content:center;margin-bottom:10px"><span><span class="ld" style="background:#004225"></span>Ad Sales</span><span><span class="ld" style="background:#6fcf97"></span>Other</span></div><div class="div"></div><div style="font-size:12px;font-weight:900;margin-bottom:6px">By Campaign Type</div><div style="height:90px;display:flex;align-items:center;justify-content:center"><canvas id="cd" width="90" height="90"></canvas></div></div></div>
+  </div>
 
-  </main>
-</div>
+  <!-- ════════════════ PPC PERFORMANCE ════════════════ -->
+  <div class="page" id="pg-ppc-performance">
+    <div class="page-top"><div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:2px"><svg style="width:20px;height:20px;color:var(--muted);margin-top:4px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg><div><h1 style="font-size:22px;font-weight:900;color:var(--txt);margin:0">PPC Performance</h1><p style="font-size:13px;color:var(--muted);margin-top:3px">Detailed PPC metrics by time period</p></div></div>
+    <div class="fbar" style="display:flex;align-items:center;gap:0;padding:12px 0 14px;flex-wrap:nowrap;"><div style="font-size:10px;font-weight:900;color:#9ca3af;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;margin-left:20px;margin-right:8px;">Marketplace</div><div class="fsel"><select><option>All Marketplaces</option></select></div></div>
+    <div style="height:14px"></div>
+    </div><!-- /page-top -->
+    <div class="page-body">
+    <div class="tw"><table class="dt"><thead><tr><th>Metric</th><th class="num">Jan</th><th class="num">Feb</th><th class="num">Mar</th><th class="num">Apr</th><th class="num">May</th><th class="num">Jun</th><th class="num">Jul</th><th class="num">Total</th></tr></thead><tbody>
+      <tr><td>Ad Sales</td><td class="num">$5,432</td><td class="num">$5,432</td><td class="num">$5,432</td><td class="num">$432</td><td class="num">$532</td><td class="num">$132</td><td class="num">$5,432</td><td class="num"><b>$187</b></td></tr>
+      <tr><td>ACoS %</td><td class="num txt-g">↑ 29%</td><td class="num txt-g">↑ 14%</td><td class="num txt-r">↓ 3%</td><td class="num">↑ 34%</td><td class="num">↑ 43%</td><td class="num">↑ 2%</td><td class="num txt-r">↓ 44%</td><td class="num"><b>5%</b></td></tr>
+      <tr><td>TACoS %</td><td class="num">16.4%</td><td class="num">84%</td><td class="num">14%</td><td class="num">16%</td><td class="num">16.4%</td><td class="num">24%</td><td class="num">84%</td><td class="num"><b>91%</b></td></tr>
+      <tr><td>RoAS</td><td class="num">$1,980</td><td class="num">$980</td><td class="num">$180</td><td class="num">$199</td><td class="num">$980</td><td class="num">$180</td><td class="num">$1</td><td class="num"><b>$7,633</b></td></tr>
+      <tr class="tot"><td>CTR %</td><td class="num">14%</td><td class="num">14%</td><td class="num">34%</td><td class="num">22%</td><td class="num">14%</td><td class="num">74%</td><td class="num">14%</td><td class="num"><b>54%</b></td></tr>
+    </tbody></table></div>
+    <div class="card"><div class="card-title">PPC Performance Trend</div><div class="card-legend"><span><span class="ld" style="background:#004225"></span>Ad Sales</span><span><span class="ld" style="background:#6fcf97"></span>Ad Spend</span></div><div style="height:180px"><canvas id="ppc"></canvas></div></div>
+  </div>
+
+  <!-- ════════════════ PPC PRODUCT PERFORMANCE ════════════════ -->
+  <div class="page" id="pg-ppc-product">
+    <div class="page-top"><div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:2px"><svg style="width:20px;height:20px;color:var(--muted);margin-top:4px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg><div><h1 style="font-size:22px;font-weight:900;color:var(--txt);margin:0">PPC Product Performance</h1><p style="font-size:13px;color:var(--muted);margin-top:3px">Advertising metrics by product</p></div></div>
+    <div style="height:14px"></div>
+    </div><!-- /page-top -->
+    <div class="page-body">
+    <div class="tw"><table class="dt"><thead><tr><th>Product(s)</th><th class="num">Gross Sales</th><th class="num">Ad Sales</th><th class="num">Ad Spend</th><th class="num">ACoS%</th><th class="num">TACoS%</th><th class="num">COGS</th><th class="num">Sell. Fees</th><th class="num">FBA Fees</th><th class="num">Clicks</th><th class="num">Orders</th><th class="num">Total</th></tr></thead><tbody>
+      <tr><td>Brutus Bone Broth</td><td class="num">$54</td><td class="num">$12</td><td class="num">$432</td><td class="num">$599</td><td class="num">$22</td><td class="num">$431</td><td class="num">$32</td><td class="num">$880</td><td class="num">32</td><td class="num">$5,432</td><td class="num"><b>$1,875</b></td></tr>
+      <tr><td>BB Beef + Chicken</td><td class="num">$432</td><td class="num">$532</td><td class="num">$32</td><td class="num">$432</td><td class="num">$58</td><td class="num">$500</td><td class="num">$59</td><td class="num">$532</td><td class="num">90</td><td class="num">$532</td><td class="num"><b>$875</b></td></tr>
+      <tr class="tot"><td>Total</td><td class="num">$241</td><td class="num">$26</td><td class="num">$20</td><td class="num">$200</td><td class="num">$200</td><td class="num">$400</td><td class="num">$298</td><td class="num">$287</td><td class="num">$600</td><td class="num">$289</td><td class="num"><b>12.00%</b></td></tr>
+    </tbody></table></div>
+    <div class="pills"><div class="pill active">Ad Sales</div><div class="pill">Ad Spend</div><div class="pill">ACoS%</div><div class="pill">TACoS%</div><div class="pill">RoAs</div><div class="pill">Impressions</div><div class="pill">Clicks</div><div class="pill">CPC</div><div class="pill">CTR%</div><div class="pill">CVR%</div><div class="pill">CPO</div><div class="pill">CPM</div><div class="pill">BuyBox</div><div class="pill">DOS</div></div>
+  </div>
+
+  <!-- ════════════════ P&L ════════════════ -->
+  <div class="page" id="pg-pl">
+    <div class="page-top"><div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:2px"><svg style="width:20px;height:20px;color:var(--muted);margin-top:4px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg><div><h1 style="font-size:22px;font-weight:900;color:var(--txt);margin:0">Profit and Loss</h1><p style="font-size:13px;color:var(--muted);margin-top:3px">Financial overview and breakdown</p></div></div>
+    <div style="height:14px"></div>
+    </div><!-- /page-top -->
+    <div class="page-body">
+    <div class="card" style="margin-bottom:12px"><div class="card-title">P&amp;L Trend</div><div style="font-size:22px;font-weight:900;color:var(--green);margin:6px 0 2px">$48,574.21 <span style="font-size:13px;color:#16a34a">↑ +20%</span></div><div class="card-legend"><span><span class="ld" style="background:#004225"></span>Net Margin</span><span><span class="ld" style="background:#6fcf97"></span>Paid Media</span><span><span class="ld" style="background:#4caf75"></span>FBA Fees</span><span><span class="ld" style="background:#d94040"></span>Refunds</span></div><div style="height:200px"><canvas id="plc"></canvas></div></div>
+    <div class="tw"><table class="dt"><thead><tr><th>Metric</th><th class="num">Jan</th><th class="num">Feb</th><th class="num">Mar</th><th class="num">Apr</th><th class="num">May</th><th class="num">Jun</th><th class="num">Jul</th><th class="num">Total</th></tr></thead><tbody>
+      <tr><td>Orders</td><td class="num">$875</td><td class="num">$875</td><td class="num">$999.99</td><td class="num">$875</td><td class="num">$875</td><td class="num">$975</td><td class="num">$975</td><td class="num"><b>$1,875</b></td></tr>
+      <tr><td class="txt-r">Refunds</td><td class="num">$5,432</td><td class="num">$4,444</td><td class="num">$3,332</td><td class="num">$1,132</td><td class="num">$15,432</td><td class="num">$6,432</td><td class="num">$7,432</td><td class="num txt-r"><b>$15,432</b></td></tr>
+      <tr><td>Gross Sales</td><td class="num">$999.99</td><td class="num">$10,340</td><td class="num">$875</td><td class="num">$999.99</td><td class="num">$999.99</td><td class="num">$9,800</td><td class="num">$999.99</td><td class="num"><b>$12,999</b></td></tr>
+      <tr><td>EBITDA</td><td class="num">14%</td><td class="num">24%</td><td class="num">12%</td><td class="num">13%</td><td class="num">20%</td><td class="num">19%</td><td class="num">15%</td><td class="num txt-g"><b>14%</b></td></tr>
+      <tr class="tot"><td>AOV</td><td class="num">$10,175</td><td class="num">$312</td><td class="num">$10,175</td><td class="num">$10,175</td><td class="num">$10,175</td><td class="num">$10,175</td><td class="num">$10,175</td><td class="num"><b>$19,175</b></td></tr>
+    </tbody></table></div>
+  </div>
+
+  <!-- ════════════════ INVENTORY ════════════════ -->
+  <div class="page" id="pg-inventory-overview">
+    <div class="page-top"><div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:2px"><svg style="width:20px;height:20px;color:var(--muted);margin-top:4px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg><div><h1 style="font-size:22px;font-weight:900;color:var(--txt);margin:0">Inventory Overview</h1><p style="font-size:13px;color:var(--muted);margin-top:3px">Stock health and availability</p></div></div>
+    <div style="height:14px"></div>
+    </div><!-- /page-top -->
+    <div class="page-body">
+    <div class="ig4">
+      <div class="ic"><div class="it g">Revenue &amp; Profitability</div><div style="margin-bottom:8px"><div class="ilbl">Last 30 Days Revenue / Units</div><div style="display:flex;justify-content:space-between;margin-top:4px"><div><div class="ival g">$10,566</div><div class="ilbl">Revenue</div></div><div><div class="ival" style="font-size:20px">432</div><div class="ilbl">Units</div></div></div></div><div class="div"></div><div style="margin-bottom:8px"><div class="ilbl">Total Inventory Value (COGS)</div><div class="ival" style="font-size:16px;margin-top:3px">$15,269</div></div><div class="div"></div><div><div class="ilbl">OOS Impact (Last 30 Days)</div><div style="display:flex;justify-content:space-between;margin-top:4px"><div><div class="ival r">$10,566</div><div class="ilbl" style="color:var(--red)">Revenue</div></div><div><div class="ival g">0%</div><div class="ilbl" style="color:var(--green)">Promo</div></div></div></div></div>
+      <div class="ic"><div class="it g">Inventory Health</div><div style="display:flex;justify-content:space-between;margin-bottom:10px"><div><div class="ilbl">Active SKUs</div><div style="font-size:24px;font-weight:900;margin-top:2px">20</div></div><div><div class="ilbl">Healthy</div><div style="font-size:24px;font-weight:900;color:var(--green);margin-top:2px">6</div></div></div><div class="div"></div><div style="margin:8px 0"><div class="ilbl">SKUs Requiring Actions</div><div style="display:flex;gap:14px;margin-top:6px"><div><div style="font-size:18px;font-weight:900;color:var(--red)">0</div><div class="ilbl" style="color:var(--red)">OOS</div></div><div><div style="font-size:18px;font-weight:900;color:var(--amber)">0</div><div class="ilbl" style="color:var(--amber)">At Risk</div></div><div><div style="font-size:18px;font-weight:900;color:var(--blue)">12</div><div class="ilbl" style="color:var(--blue)">Excess</div></div></div></div></div>
+      <div class="ic"><div class="it" style="color:var(--txt2)">Consumer Impact</div><div style="text-align:center;padding:12px 0"><div class="ilbl">80/20 SKUs In-Stock</div><div style="font-size:32px;font-weight:900;color:var(--green);margin:4px 0">100%</div></div><div class="div"></div><div style="margin:8px 0"><div class="ilbl">Return Rate (Last 30 Days)</div><div style="font-size:18px;font-weight:900;color:var(--red);margin-top:3px">1.1%</div></div><div class="div"></div><div><div class="ilbl">Refunds (Last 30 Days)</div><div style="font-size:18px;font-weight:900;margin-top:3px">$289</div></div></div>
+      <div class="ic"><div class="it b">Inventory Age</div><div style="height:120px"><canvas id="iac"></canvas></div><div class="card-legend" style="flex-wrap:wrap;gap:5px;margin-top:6px;font-size:10px"><span><span class="ld" style="background:#004225"></span>0-90</span><span><span class="ld" style="background:#6fcf97"></span>91-180</span><span><span class="ld" style="background:#a8e6c0"></span>181-270</span><span><span class="ld" style="background:#d94040"></span>365+</span></div></div>
+    </div>
+    <div class="ig4">
+      <div class="ic"><div class="it r">Not Available</div><table class="itbl"><tr><th>DOS</th><th>ASINs</th><th>Sales</th><th>Mix</th></tr><tr><td>OOS</td><td>1</td><td>$0</td><td>0%</td></tr></table></div>
+      <div class="ic"><div class="it a">At Risk</div><table class="itbl"><tr><th>DOS</th><th>ASINs</th><th>Sales</th><th>Mix</th></tr><tr><td>—</td><td>—</td><td>—</td><td>—</td></tr></table></div>
+      <div class="ic"><div class="it g">Healthy</div><table class="itbl"><tr><th>DOS</th><th>ASINs</th><th>Sales</th><th>Mix</th></tr><tr><td>—</td><td>—</td><td>—</td><td>—</td></tr></table></div>
+      <div class="ic"><div class="it b">Excess</div><table class="itbl"><tr><th>DOS</th><th>ASINs</th><th>Sales</th><th>Mix</th></tr><tr><td>&gt;120</td><td>3</td><td>$12,031</td><td>100%</td></tr></table></div>
+    </div>
+  </div>
+
+  <!-- ════════════════ INVENTORY MANAGEMENT ════════════════ -->
+  <div class="page" id="pg-inventory-mgmt">
+    <div class="page-top"><div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:2px"><svg style="width:20px;height:20px;color:var(--muted);margin-top:4px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg><div><h1 style="font-size:22px;font-weight:900;color:var(--txt);margin:0">Inventory Management</h1><p style="font-size:13px;color:var(--muted);margin-top:3px">ASIN-level stock planning</p></div></div>
+    <div style="height:14px"></div>
+    </div><!-- /page-top -->
+    <div class="page-body">
+    <div class="tw"><table class="dt"><thead><tr><th>ASIN</th><th class="num">Fulfillable</th><th class="num">Unsalable</th><th class="num">Reserved</th><th class="num">Rolling Avg</th><th class="num">AMZ DoH</th><th class="num">Replenish</th><th class="num">Lead Time</th><th class="num">Demand</th><th>Status</th></tr></thead><tbody>
+      <tr><td style="font-weight:700">B0CYR5BSKM</td><td class="num">875</td><td class="num">1</td><td class="num">20</td><td class="num">875</td><td class="num">875</td><td class="num">85</td><td class="num">1999</td><td class="num">750</td><td><span class="badge g">Working</span></td></tr>
+      <tr><td style="font-weight:700">B0DFT7GBY8</td><td class="num">5,432</td><td class="num">0</td><td class="num">21</td><td class="num">1,132</td><td class="num">1,432</td><td class="num">2</td><td class="num">32</td><td class="num">222</td><td><span class="badge g">Working</span></td></tr>
+      <tr><td style="font-weight:700">B09B62348Q</td><td class="num">999</td><td class="num">0</td><td class="num">18</td><td class="num">1,290</td><td class="num">999</td><td class="num">19</td><td class="num">0</td><td class="num">340</td><td><span class="badge a">Pending</span></td></tr>
+      <tr class="tot"><td colspan="10" style="text-align:right;color:var(--muted);font-size:10px">Showing 3 of 18 ASINs</td></tr>
+    </tbody></table></div>
+    <div class="card"><div class="card-title">Units Ordered vs Rolling Daily Avg</div><div class="card-legend"><span><span class="ld" style="background:#004225"></span>Units Ordered</span><span><span class="ld" style="background:#6fcf97"></span>Rolling Daily Avg</span></div><div style="height:200px"><canvas id="imc"></canvas></div></div>
+  </div>
+
+  <!-- PLACEHOLDERS -->
+  <div class="page" id="pg-sales-overview"><div class="phdr"><h1>Sales Overview</h1></div><div class="empty"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="4,32 14,18 22,24 36,8"/></svg><h3>Coming Soon</h3><p>Select a date range to view</p></div></div>
+  <div class="page" id="pg-marketing"><div class="phdr"><h1>Marketing Overview</h1></div><div class="empty"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 28L18 8L30 28"/><path d="M12 20h12"/></svg><h3>Coming Soon</h3><p>Marketing data will appear here</p></div></div>
+  <div class="page" id="pg-customer"><div class="phdr"><h1>Consumer Journey</h1></div><div class="empty"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="16" cy="14" r="6"/><path d="M4 34a12 12 0 0124 0"/></svg><h3>Coming Soon</h3></div></div>
+  <div class="page" id="pg-cost-details"><div class="phdr"><h1>Cost Details</h1></div><div class="empty"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="20" cy="20" r="14"/><path d="M20 12v4M20 24v4"/></svg><h3>Coming Soon</h3></div></div>
+  <div class="page" id="pg-inventory-age"><div class="phdr"><h1>Inventory Age</h1></div><div class="empty"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 8h24l-3 24H11z"/></svg><h3>Coming Soon</h3></div></div>
+  <div class="page" id="pg-listing-mgmt"><div class="phdr"><h1>Listing Management</h1></div><div class="empty"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="4" width="28" height="32" rx="3"/><path d="M13 14h14M13 20h14M13 26h8"/></svg><h3>Coming Soon</h3></div></div>
+  <div class="page" id="pg-review"><div class="phdr"><h1>Review and Ratings</h1></div><div class="empty"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 6l3.5 7 7.5 1-5.5 5.5 1.5 7.5-7-3.5-7 3.5 1.5-7.5-5.5-5.5 7.5-1z"/></svg><h3>Coming Soon</h3></div></div>
+
+</div><!-- /content -->
+</div><!-- /main -->
 
 <script>
+// ── EXACT DATA FROM LOVABLE INDEX.TSX ──
+const salesByYear=[{y:'2024',v:1240000},{y:'2025',v:3150000},{y:'2026',v:350000}];
+const salesByQtr=[{q:'Qtr 1',y23:130000,y24:308000,y25:676000,y26:905000},{q:'Qtr 2',y23:180000,y24:484000,y25:753000,y26:704000},{q:'Qtr 3',y23:220000,y24:389000,y25:818000,y26:0},{q:'Qtr 4',y23:260000,y24:402000,y25:653000,y26:0}];
+const salesByMonth=[{m:'Jan',y24:115000,y25:243000,y26:346000},{m:'Feb',y24:91000,y25:195000,y26:130000},{m:'Mar',y24:99000,y25:238000,y26:230000},{m:'Apr',y24:125000,y25:230000,y26:0},{m:'May',y24:94000,y25:242000,y26:0},{m:'Jun',y24:110000,y25:194000,y26:0},{m:'Jul',y24:225000,y25:281000,y26:0},{m:'Aug',y24:143000,y25:277000,y26:0},{m:'Sep',y24:213000,y25:272000,y26:0},{m:'Oct',y24:216000,y25:269000,y26:0},{m:'Nov',y24:140000,y25:254000,y26:0},{m:'Dec',y24:129000,y25:323000,y26:0}];
+const prods=[{name:'Brutus Bone Broth',v:4937000},{name:'Bone Broth Beef + Pork',v:794000},{name:'Instant On-The-Go',v:383000},{name:'Bone Broth Beef + Chicken',v:318000},{name:'Dog Food Topper',v:194000},{name:'Bone Broth Biscuits',v:173000},{name:'Goat Milk Meal Topper',v:67000}];
+const PIE_COLORS=['hsl(153,100%,13%)','hsl(210,60%,45%)','hsl(0,65%,50%)','hsl(45,80%,50%)','hsl(145,56%,62%)','hsl(30,70%,55%)','hsl(0,0%,60%)'];
+const states=[{s:'California',v:1029000},{s:'Florida',v:556000},{s:'Texas',v:538000},{s:'New York',v:376000},{s:'New Jersey',v:254000},{s:'Pennsylvania',v:244000},{s:'Washington',v:238000},{s:'Illinois',v:226000}];
+const topPerf=[{name:'Cheddar - 1.42oz',change:522},{name:'Gouda - 0.63oz',change:400},{name:'Cheddar - 0.63oz',change:202},{name:'Artichoke & Asparagus Salad - 4.4oz',change:76},{name:'Riced Broccoli - 7oz',change:54}];
+const topDecl=[{name:'Chopped Artichokes - 4.4 oz',change:-100},{name:'Gouda - 1.42oz',change:-57},{name:'Lemon & Rosemary - 1.1oz',change:-39},{name:'French Green Bean - 1.76oz',change:-25},{name:'Cauliflower - 1.58oz',change:-21}];
+const dailySales=Array.from({length:31},(_,i)=>({day:i+1,mtd:[6900,7400,6900,7200,7200,6300,6900,6200,6100,6300,6500,6900,7300,7900,6500,6500,6300,null,null,null,null,null,null,null,null,null,null,null,null,null,null][i],lm:[5800,6100,5900,6200,6500,6000,5800,5500,5700,5900,6100,6300,6000,5800,5600,5900,6100,6300,6500,6200,5900,5700,5800,6000,6200,6400,6100,5900,5700,5800,6000][i],ly:[4200,4500,4800,4600,4300,4100,4400,4700,4500,4200,4000,4300,4600,4800,4500,4200,4000,4300,4600,4800,4500,4200,4000,4300,4600,4800,4500,4200,4000,4300,4600][i]}));
+const prodTable=[{name:'Snacks',daily:[1453,1806,1896,1636,1743,1769,1564,2069,2019,1697,1506,2174,1297,1648],mtdSales:24276,mtdMomD:-932,mtdMomP:-4,mtdYoyD:6161,mtdYoyP:34,ytdSales:125227,ytdYoyD:27583,ytdYoyP:28},{name:'Easy Chef',daily:[1601,1245,1097,1631,1064,1405,1603,1504,1276,1456,1321,2190,1933,1696],mtdSales:21023,mtdMomD:3154,mtdMomP:18,mtdYoyD:7271,mtdYoyP:53,ytdSales:97691,ytdYoyD:26085,ytdYoyP:36},{name:'induced Oloves 24 PKs',daily:[1390,1808,1949,1373,1388,1514,983,790,1595,1808,1609,1445,1220,1316],mtdSales:20187,mtdMomD:464,mtdMomP:2,mtdYoyD:4614,mtdYoyP:30,ytdSales:100315,ytdYoyD:17904,ytdYoyP:22},{name:'Kosher Petite Dill Pickles',daily:[705,809,937,857,305,759,807,585,879,656,659,378,429,755],mtdSales:9521,mtdMomD:1643,mtdMomP:21,mtdYoyD:7785,mtdYoyP:448,ytdSales:42645,ytdYoyD:40320,ytdYoyP:1734},{name:'Oloves + Poshi Combo',daily:[654,407,363,834,734,613,800,441,686,435,399,510,434,505],mtdSales:7813,mtdMomD:87,mtdMomP:1,mtdYoyD:2159,mtdYoyP:38,ytdSales:37721,ytdYoyD:10133,ytdYoyP:37},{name:'Plain Olives',daily:[592,558,421,300,415,451,234,240,419,526,957,489,288,316],mtdSales:6207,mtdMomD:-411,mtdMomP:-6,mtdYoyD:3148,mtdYoyP:103,ytdSales:33301,ytdYoyD:17949,ytdYoyP:117},{name:'Oloves 30 PKs',daily:[515,548,367,263,549,326,72,403,360,295,41,444,363,180],mtdSales:4726,mtdMomD:-1494,mtdMomP:-24,mtdYoyD:-1224,mtdYoyP:-21,ytdSales:29496,ytdYoyD:-315,ytdYoyP:-1}];
+
+function fmtC(v){if(Math.abs(v)>=1e6)return'$'+(v/1e6).toFixed(1)+'M';if(Math.abs(v)>=1000)return'$'+(v/1000).toFixed(0)+'K';return'$'+v;}
+function fmtK(v){if(v>=1000)return'$'+(v/1000).toFixed(1)+'K';return'$'+v;}
+
 // ── NAVIGATION ──
-const pageTitles = {
-  'executive': 'PRYSM — Executive Summary',
-  'sales-overview': 'Sales Overview',
-  'sales-performance': 'Sales Performance',
-  'product-performance': 'Product Performance',
-  'ppc-overview': 'PPC Overview / Ad Overview',
-  'ppc-performance': 'PPC Performance',
-  'ppc-product': 'PPC Product Performance',
-  'marketing': 'Marketing Overview',
-  'customer': 'Customer Journey',
-  'pl': 'Profit and Loss',
-  'cost-details': 'Cost Details',
-  'inventory-overview': 'Inventory Overview',
-  'inventory-mgmt': 'Inventory Management',
-  'inventory-age': 'Inventory Age',
-  'listing-mgmt': 'Listing Management',
-  'review': 'Review and Ratings'
-};
+function go(pg,nid){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-kid,.nav-link').forEach(n=>n.classList.remove('active'));
+  const p=document.getElementById('pg-'+pg);if(p)p.classList.add('active');
+  const n=document.getElementById(nid);if(n)n.classList.add('active');
+  setTimeout(()=>ip(pg),40);
+}
+function tog(el){
+  const isOpen=el.classList.contains('open');
+  // Close all other sections (accordion)
+  document.querySelectorAll('.nav-par.open').forEach(p=>{
+    if(p!==el){
+      p.classList.remove('open');
+      p.nextElementSibling.classList.remove('open');
+    }
+  });
+  // Toggle this one
+  el.classList.toggle('open',!isOpen);
+  el.nextElementSibling.classList.toggle('open',!isOpen);
+}
+document.querySelectorAll('.pill').forEach(p=>p.addEventListener('click',function(){
+  document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
+  this.classList.add('active');
+}));
 
-function navigate(page, el) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const target = document.getElementById('page-' + page);
-  if (target) target.classList.add('active');
-  if (el) el.classList.add('active');
-  document.getElementById('page-title-bar').textContent = pageTitles[page] || 'PRYSM';
-  initChartsForPage(page);
+// ── CHARTS ──
+const CH={};
+function kill(id){if(CH[id]){CH[id].destroy();delete CH[id];}}
+const TT={backgroundColor:'#004225',titleColor:'#fff',bodyColor:'#d4f1e1',padding:8,cornerRadius:6,titleFont:{family:'Lato',size:11,weight:'700'},bodyFont:{family:'Lato',size:11}};
+const GRD={color:'rgba(0,0,0,0.04)'};
+const AX={x:{grid:{display:false},ticks:{color:'#9ca3af',font:{family:'Lato',size:10}}},y:{grid:GRD,ticks:{color:'#9ca3af',font:{family:'Lato',size:10}}}};
+const BASE={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:TT},scales:AX};
+
+function spark(id,data,up){
+  const c=document.getElementById(id);if(!c)return;
+  if(CH[id]){CH[id].destroy();delete CH[id];}
+  const col=up?'rgb(22,163,74)':'rgb(217,64,64)';
+  const fill=up?'rgba(22,163,74,0.12)':'rgba(217,64,64,0.08)';
+  CH[id]=new Chart(c,{
+    type:'line',
+    data:{labels:data.map((_,i)=>i),datasets:[{data,borderColor:col,backgroundColor:fill,borderWidth:2,pointRadius:0,tension:.5,fill:true}]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      animation:false,
+      plugins:{legend:{display:false},tooltip:{enabled:false}},
+      scales:{x:{display:false},y:{display:false,grace:'20%'}},
+      elements:{line:{tension:.5}}
+    }
+  });
 }
 
-// ── CHART HELPERS ──
-const chartInstances = {};
-
-function destroyChart(id) {
-  if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
+function dg(id,pct,color){
+  const c=document.getElementById(id);if(!c)return;
+  const ctx=c.getContext('2d');
+  ctx.clearRect(0,0,c.width,c.height);
+  const cx=c.width/2,cy=c.height-2,rr=cx*.85;
+  ctx.strokeStyle='#ebebeb';ctx.lineWidth=9;ctx.lineCap='round';
+  ctx.beginPath();ctx.arc(cx,cy,rr,Math.PI,0);ctx.stroke();
+  ctx.strokeStyle=color;ctx.lineWidth=9;
+  ctx.beginPath();ctx.arc(cx,cy,rr,Math.PI,Math.PI+pct*Math.PI);ctx.stroke();
 }
 
-const months = ['Jan 25','Feb 25','Mar 25','Apr 25','May 27','Jun 28','Jul 29','Aug 30','Sep 31'];
-const shortMonths = ['Dec 25','Dec 26','Dec 27','Dec 28','Dec 29','Dec 30','Dec 31'];
+// Build product bars
+function buildProdBars(){
+  const el=document.getElementById('prod-bars');
+  if(!el||el.childElementCount)return;
+  const max=prods[0].v;
+  el.innerHTML=prods.map((p,i)=>`<div class="hbar-row"><div class="hbar-lbl">${p.name}</div><div class="hbar-trk"><div class="hbar-fil" style="width:${(p.v/max*100).toFixed(1)}%;background:${PIE_COLORS[i]}"></div></div><div class="hbar-val">${fmtC(p.v)}</div></div>`).join('');
+  const es=document.getElementById('state-bars');
+  if(!es||es.childElementCount)return;
+  const ms=states[0].v;
+  es.innerHTML=states.map(s=>`<div class="hbar-row"><div class="hbar-lbl">${s.s}</div><div class="hbar-trk"><div class="hbar-fil" style="width:${(s.v/ms*100).toFixed(1)}%;background:#004225;opacity:${(0.4+s.v/ms*0.6).toFixed(2)}"></div></div><div class="hbar-val">${fmtC(s.v)}</div></div>`).join('');
+}
 
-function rand(min, max) { return Math.floor(Math.random() * (max - min) + min); }
-function randArr(len, min, max) { return Array.from({length:len}, () => rand(min, max)); }
-
-const defaultOpts = {
-  responsive: true, maintainAspectRatio: false,
-  plugins: { legend: { display: false }, tooltip: {
-    backgroundColor: '#0D2B1A', titleColor: '#fff', bodyColor: '#A8E6C0',
-    padding: 8, cornerRadius: 6, titleFont: { family: 'DM Sans', size: 11 },
-    bodyFont: { family: 'DM Mono', size: 11 }
-  }},
-  scales: {
-    x: { grid: { display: false }, ticks: { color: '#7A9A8A', font: { family: 'DM Sans', size: 10 } } },
-    y: { grid: { color: 'rgba(226,234,229,0.5)', drawBorder: false }, ticks: { color: '#7A9A8A', font: { family: 'DM Sans', size: 10 } } }
+// Build performer lists
+function buildPerf(){
+  function rows(arr,elId,up){
+    const el=document.getElementById(elId);
+    if(!el||el.childElementCount)return;
+    el.innerHTML=arr.map(p=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0eb"><span style="font-size:11.5px;color:var(--txt2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:170px">${p.name}</span><span style="font-size:11px;font-weight:700;color:${up?'#16a34a':'var(--red)'};display:flex;align-items:center;gap:2px;flex-shrink:0">${up?'↑':'↓'}${Math.abs(p.change)}%</span></div>`).join('');
   }
-};
-
-function initChartsForPage(page) {
-  if (page === 'executive') initExecutiveCharts();
-  else if (page === 'sales-performance') initSalesPerfCharts();
-  else if (page === 'product-performance') initProductCharts();
-  else if (page === 'ppc-overview') initPPCOverviewCharts();
-  else if (page === 'ppc-performance') initPPCPerfCharts();
-  else if (page === 'pl') initPLCharts();
-  else if (page === 'inventory-overview') initInvOverviewCharts();
-  else if (page === 'inventory-mgmt') initInvMgmtCharts();
+  rows(topPerf,'top-perf',true);
+  rows(topDecl,'top-decl',false);
+  rows(topPerf,'pp-perf',true);
+  rows(topDecl,'pp-decl',false);
 }
 
-function initExecutiveCharts() {
-  destroyChart('growthChart');
-  const ctx = document.getElementById('growthChart');
-  if (!ctx) return;
-  chartInstances['growthChart'] = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: months,
-      datasets: [
-        { label: '2025', data: [650,420,580,780,620,850,700,920,1000], backgroundColor: '#0D2B1A', borderRadius: 3, barPercentage: 0.28 },
-        { label: '2024', data: [500,380,520,650,580,720,600,800,880], backgroundColor: '#4CAF75', borderRadius: 3, barPercentage: 0.28 },
-        { label: '2023', data: [380,280,420,520,460,600,480,680,720], backgroundColor: '#D4F1E1', borderRadius: 3, barPercentage: 0.28 },
-      ]
-    },
-    options: { ...defaultOpts, plugins: { ...defaultOpts.plugins }, scales: { ...defaultOpts.scales, y: { ...defaultOpts.scales.y, ticks: { ...defaultOpts.scales.y.ticks, callback: v => v + 'K' } } } }
+// Build product table
+function buildProdTable(){
+  const tbody=document.getElementById('prod-table');
+  if(!tbody||tbody.childElementCount)return;
+  const dates=Array.from({length:14},(_,i)=>`3/${i+1}`);
+  const rows=prodTable.map(r=>{
+    const daily=r.daily.map(v=>`<td class="num" style="color:#6b7280">$${v.toLocaleString()}</td>`).join('');
+    const momC=r.mtdMomD>=0;const yoyC=r.mtdYoyP>=0;
+    return`<tr><td style="position:sticky;left:0;background:white;z-index:1;font-weight:700">${r.name}</td>${daily}<td class="num" style="background:#f8f9fa;font-weight:700">$${r.mtdSales.toLocaleString()}</td><td class="num ${momC?'txt-g':'txt-r'}" style="background:#f8f9fa">${momC?'':'('}$${Math.abs(r.mtdMomD).toLocaleString()}${r.mtdMomD<0?')':''}</td><td class="num" style="background:#f8f9fa"><span class="${momC?'txt-g':'txt-r'}">${momC?'↑':'↓'}${Math.abs(r.mtdMomP)}%</span></td><td class="num ${yoyC?'txt-g':'txt-r'}" style="background:#f8f9fa">$${Math.abs(r.mtdYoyD).toLocaleString()}</td><td class="num" style="background:#f8f9fa"><span class="${yoyC?'txt-g':'txt-r'}">${yoyC?'↑':'↓'}${Math.abs(r.mtdYoyP)}%</span></td><td class="num">$${r.ytdSales.toLocaleString()}</td><td class="num ${r.ytdYoyD>=0?'txt-g':'txt-r'}">$${Math.abs(r.ytdYoyD).toLocaleString()}</td><td class="num"><span class="${r.ytdYoyP>=0?'txt-g':'txt-r'}">${r.ytdYoyP>=0?'↑':'↓'}${Math.abs(r.ytdYoyP)}%</span></td></tr>`;
   });
+  // Total row
+  const totD=Array.from({length:14},(_,i)=>prodTable.reduce((s,r)=>s+r.daily[i],0));
+  const totRow=`<tr class="tot"><td style="position:sticky;left:0;background:#f7f7f3;z-index:1">Total</td>${totD.map(v=>`<td class="num">$${v.toLocaleString()}</td>`).join('')}<td class="num" style="background:#f1f5f9">$${prodTable.reduce((s,r)=>s+r.mtdSales,0).toLocaleString()}</td><td class="num txt-g" style="background:#f1f5f9">$${prodTable.reduce((s,r)=>s+r.mtdMomD,0).toLocaleString()}</td><td class="num txt-g" style="background:#f1f5f9">↑3%</td><td class="num txt-g" style="background:#f1f5f9">$30,819</td><td class="num txt-g" style="background:#f1f5f9">↑48%</td><td class="num">$475,174</td><td class="num txt-g">$144,289</td><td class="num txt-g">↑44%</td></tr>`;
+  tbody.innerHTML=rows.join('')+totRow;
 }
 
-function initSalesPerfCharts() {
-  destroyChart('salesProfitChart');
-  const ctx = document.getElementById('salesProfitChart');
-  if (!ctx) return;
-  chartInstances['salesProfitChart'] = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: shortMonths,
-      datasets: [
-        { label: 'Gross Sales', data: [650,300,680,750,820,600,950], backgroundColor: '#0D2B1A', borderRadius: 3, barPercentage: 0.4 },
-        { label: 'Gross Profit', data: [280,150,320,350,380,260,420], backgroundColor: '#4CAF75', borderRadius: 3, barPercentage: 0.4 }
-      ]
-    },
-    options: { ...defaultOpts, scales: { ...defaultOpts.scales, y: { ...defaultOpts.scales.y, ticks: { ...defaultOpts.scales.y.ticks, callback: v => v + 'K' } } } }
-  });
-}
+function ip(pg){
+  if(pg==='executive'){
+    spark('sp0',[18,22,19,25,28,24,30],true);
+    spark('sp1',[10,12,11,14,13,15,16],true);
+    spark('sp2',[8,9,7,8,7,6,7],false);
+    spark('sp3',[2.1,2.0,1.9,1.8,1.7,1.6,1.6],false);
+    spark('sp4',[15,17,16,18,19,20,21],true);
+    spark('sp5',[10,9.5,9,8.8,8.5,8.4,8.3],false);
+    spark('sp6',[23,24,24,25,25,26,26],true);
 
-function initProductCharts() {
-  destroyChart('productChart');
-  const ctx = document.getElementById('productChart');
-  if (!ctx) return;
-  chartInstances['productChart'] = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: Array.from({length:25}, (_,i) => i+1),
-      datasets: [
-        { label: 'MTD Sales', data: randArr(25,15000,50000), borderColor: '#0D2B1A', backgroundColor: 'rgba(13,43,26,0.05)', tension: 0.4, borderWidth: 2, pointRadius: 0, fill: true },
-        { label: 'A Sales LM', data: randArr(25,10000,45000), borderColor: '#4CAF75', backgroundColor: 'transparent', tension: 0.4, borderWidth: 1.5, pointRadius: 0, borderDash: [4,4] },
-        { label: 'A Sales LY', data: randArr(25,8000,40000), borderColor: '#E85555', backgroundColor: 'transparent', tension: 0.4, borderWidth: 1.5, pointRadius: 0, borderDash: [2,2] }
-      ]
-    },
-    options: { ...defaultOpts, scales: { ...defaultOpts.scales, y: { ...defaultOpts.scales.y, ticks: { ...defaultOpts.scales.y.ticks, callback: v => '$' + (v/1000).toFixed(0) + 'K' } } } }
-  });
-}
+    buildProdBars(); buildPerf(); buildProdTable();
 
-function initPPCOverviewCharts() {
-  destroyChart('ppcMainChart');
-  const ppcCtx = document.getElementById('ppcMainChart');
-  if (ppcCtx) {
-    chartInstances['ppcMainChart'] = new Chart(ppcCtx, {
-      type: 'line',
-      data: {
-        labels: ['Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-        datasets: [
-          { label: 'Gross Sales', data: [28000,32000,35000,31000,38000,42000,48000], borderColor: '#0D2B1A', backgroundColor: 'rgba(13,43,26,0.08)', tension: 0.4, borderWidth: 2.5, pointRadius: 0, fill: true },
-          { label: 'Ad Sales', data: [18000,22000,25000,21000,28000,32000,38000], borderColor: '#4CAF75', backgroundColor: 'rgba(76,175,117,0.05)', tension: 0.4, borderWidth: 2, pointRadius: 0 }
-        ]
-      },
-      options: { ...defaultOpts, scales: { ...defaultOpts.scales, y: { ...defaultOpts.scales.y, ticks: { ...defaultOpts.scales.y.ticks, callback: v => '$' + (v/1000).toFixed(0) + 'K' } } } }
-    });
+    kill('byYear');
+    CH['byYear']=new Chart(document.getElementById('byYear'),{type:'bar',data:{labels:salesByYear.map(d=>d.y),datasets:[{data:salesByYear.map(d=>d.v),backgroundColor:'hsl(145,56%,62%)',borderRadius:[4,4,0,0],barPercentage:.5}]},options:{...BASE,scales:{...AX,y:{...AX.y,ticks:{...AX.y.ticks,callback:v=>'$'+(v/1e6).toFixed(1)+'M'}}}}});
+
+    kill('byQtr');
+    CH['byQtr']=new Chart(document.getElementById('byQtr'),{type:'bar',data:{labels:salesByQtr.map(d=>d.q),datasets:[{label:'2023',data:salesByQtr.map(d=>d.y23),backgroundColor:'hsl(0,0%,78%)',borderRadius:[2,2,0,0],barPercentage:.22},{label:'2024',data:salesByQtr.map(d=>d.y24),backgroundColor:'hsl(0,0%,60%)',borderRadius:[2,2,0,0],barPercentage:.22},{label:'2025',data:salesByQtr.map(d=>d.y25),backgroundColor:'hsl(145,56%,62%)',borderRadius:[2,2,0,0],barPercentage:.22},{label:'2026',data:salesByQtr.map(d=>d.y26||null),backgroundColor:'hsl(153,100%,13%)',borderRadius:[2,2,0,0],barPercentage:.22}]},options:{...BASE,scales:{...AX,y:{...AX.y,ticks:{...AX.y.ticks,callback:v=>'$'+(v/1000).toFixed(0)+'K'}}}}});
+
+    kill('byMonth');
+    CH['byMonth']=new Chart(document.getElementById('byMonth'),{type:'bar',data:{labels:salesByMonth.map(d=>d.m),datasets:[{label:'2024',data:salesByMonth.map(d=>d.y24),backgroundColor:'hsl(0,0%,70%)',borderRadius:[2,2,0,0],barPercentage:.28},{label:'2025',data:salesByMonth.map(d=>d.y25),backgroundColor:'hsl(145,56%,62%)',borderRadius:[2,2,0,0],barPercentage:.28},{label:'2026',data:salesByMonth.map(d=>d.y26||null),backgroundColor:'hsl(153,100%,13%)',borderRadius:[2,2,0,0],barPercentage:.28}]},options:{...BASE,scales:{...AX,y:{...AX.y,ticks:{...AX.y.ticks,callback:v=>'$'+(v/1000).toFixed(0)+'K'}}}}});
+
+    kill('prodPie');
+    CH['prodPie']=new Chart(document.getElementById('prodPie'),{type:'doughnut',data:{datasets:[{data:prods.map(p=>p.v),backgroundColor:PIE_COLORS,borderWidth:0,hoverOffset:4}]},options:{...BASE,cutout:'55%',scales:{x:{display:false},y:{display:false}}}});
+
+    kill('dailyTrend');
+    CH['dailyTrend']=new Chart(document.getElementById('dailyTrend'),{type:'line',data:{labels:dailySales.map(d=>d.day),datasets:[{label:'MTD Sales',data:dailySales.map(d=>d.mtd),borderColor:'hsl(153,100%,13%)',backgroundColor:'transparent',tension:.3,borderWidth:2.5,pointRadius:0,activeDot:{r:4}},{label:'Sales LM',data:dailySales.map(d=>d.lm),borderColor:'hsl(145,56%,62%)',backgroundColor:'transparent',tension:.3,borderWidth:1.5,pointRadius:0,borderDash:[4,2]},{label:'Sales LY',data:dailySales.map(d=>d.ly),borderColor:'hsl(0,0%,75%)',backgroundColor:'transparent',tension:.3,borderWidth:1.5,pointRadius:0,borderDash:[2,2]}]},options:{...BASE,scales:{...AX,y:{...AX.y,min:4000,max:8500,ticks:{...AX.y.ticks,callback:v=>fmtK(v)}}}}});
   }
-
-  destroyChart('adSalesSpendChart');
-  const adCtx = document.getElementById('adSalesSpendChart');
-  if (adCtx) {
-    chartInstances['adSalesSpendChart'] = new Chart(adCtx, {
-      type: 'bar',
-      data: {
-        labels: ['Jan 25','May 26','Jan 27','Dec 28'],
-        datasets: [
-          { label: 'Ad Sales', data: [650,480,720,980], backgroundColor: '#0D2B1A', borderRadius: 3, barPercentage: 0.3 },
-          { label: 'Ad Spend', data: [280,210,320,420], backgroundColor: '#4CAF75', borderRadius: 3, barPercentage: 0.3 },
-          { label: 'ACoS%', data: [100,80,120,150], backgroundColor: '#D4F1E1', borderRadius: 3, barPercentage: 0.3 }
-        ]
-      },
-      options: { ...defaultOpts, scales: { ...defaultOpts.scales, y: { ...defaultOpts.scales.y, ticks: { ...defaultOpts.scales.y.ticks, callback: v => v + 'K' } } } }
-    });
+  else if(pg==='sales-performance'){
+    kill('spc');
+    CH['spc']=new Chart(document.getElementById('spc'),{type:'bar',data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul'],datasets:[{label:'Gross Sales',data:[650,300,680,750,820,600,950],backgroundColor:'#004225',borderRadius:4,barPercentage:.4},{label:'Gross Profit',data:[280,150,320,350,380,260,420],backgroundColor:'#6fcf97',borderRadius:4,barPercentage:.4}]},options:{...BASE,scales:{...AX,y:{...AX.y,ticks:{...AX.y.ticks,callback:v=>v+'K'}}}}});
   }
-
-  destroyChart('adVsOtherDonut');
-  const avCtx = document.getElementById('adVsOtherDonut');
-  if (avCtx) {
-    chartInstances['adVsOtherDonut'] = new Chart(avCtx, {
-      type: 'doughnut',
-      data: { labels: ['Ad Sales','Other Sales'], datasets: [{ data: [22, 78], backgroundColor: ['#0D2B1A','#4CAF75'], borderWidth: 0, hoverOffset: 3 }] },
-      options: { ...defaultOpts, cutout: '70%', scales: { x: { display: false }, y: { display: false } } }
-    });
+  else if(pg==='product-performance'){
+    buildPerf();
+    kill('prc');
+    CH['prc']=new Chart(document.getElementById('prc'),{type:'line',data:{labels:Array.from({length:25},(_,i)=>i+1),datasets:[{data:dailySales.slice(0,25).map(d=>d.mtd||0),borderColor:'#004225',backgroundColor:'rgba(0,66,37,.06)',tension:.4,borderWidth:2.5,pointRadius:0,fill:true},{data:dailySales.slice(0,25).map(d=>d.lm||0),borderColor:'#6fcf97',backgroundColor:'transparent',tension:.4,borderWidth:1.5,pointRadius:0,borderDash:[4,4]},{data:dailySales.slice(0,25).map(d=>d.ly||0),borderColor:'#d94040',backgroundColor:'transparent',tension:.4,borderWidth:1.5,pointRadius:0,borderDash:[2,2]}]},options:{...BASE,scales:{...AX,y:{...AX.y,ticks:{...AX.y.ticks,callback:v=>fmtK(v)}}}}});
   }
-
-  destroyChart('campaignDonut');
-  const cdCtx = document.getElementById('campaignDonut');
-  if (cdCtx) {
-    chartInstances['campaignDonut'] = new Chart(cdCtx, {
-      type: 'doughnut',
-      data: { labels: ['Cat 1','Cat 2','Cat 3'], datasets: [{ data: [50,15,19], backgroundColor: ['#0D2B1A','#4CAF75','#E85555'], borderWidth: 0 }] },
-      options: { ...defaultOpts, cutout: '60%', scales: { x: { display: false }, y: { display: false } } }
-    });
+  else if(pg==='ppc-overview'){
+    kill('pmc');kill('asc');kill('avo');kill('cd');
+    CH['pmc']=new Chart(document.getElementById('pmc'),{type:'line',data:{labels:['Jun','Jul','Aug','Sep','Oct','Nov','Dec'],datasets:[{data:[28000,32000,35000,31000,38000,42000,48000],borderColor:'#004225',backgroundColor:'rgba(0,66,37,.08)',tension:.4,borderWidth:2.5,pointRadius:0,fill:true},{data:[18000,22000,25000,21000,28000,32000,38000],borderColor:'#6fcf97',backgroundColor:'transparent',tension:.4,borderWidth:2,pointRadius:0}]},options:{...BASE,scales:{...AX,y:{...AX.y,ticks:{...AX.y.ticks,callback:v=>'$'+(v/1000).toFixed(0)+'K'}}}}});
+    CH['asc']=new Chart(document.getElementById('asc'),{type:'bar',data:{labels:['Jan','May','Sep','Dec'],datasets:[{data:[650,480,720,980],backgroundColor:'#004225',borderRadius:4,barPercentage:.28},{data:[280,210,320,420],backgroundColor:'#6fcf97',borderRadius:4,barPercentage:.28}]},options:{...BASE,scales:{...AX,y:{...AX.y,ticks:{...AX.y.ticks,callback:v=>v+'K'}}}}});
+    CH['avo']=new Chart(document.getElementById('avo'),{type:'doughnut',data:{datasets:[{data:[22,78],backgroundColor:['#004225','#6fcf97'],borderWidth:0}]},options:{...BASE,cutout:'70%',scales:{x:{display:false},y:{display:false}}}});
+    CH['cd']=new Chart(document.getElementById('cd'),{type:'doughnut',data:{datasets:[{data:[50,15,19],backgroundColor:['#004225','#6fcf97','#d94040'],borderWidth:0}]},options:{...BASE,cutout:'60%',scales:{x:{display:false},y:{display:false}}}});
+    dg('oa',.22,'#004225');dg('ca',.14,'#6fcf97');
   }
-
-  // Draw gauges
-  drawGauge('overallAcosGauge', 0.22, '#4CAF75');
-  drawGauge('currentAcosGauge', 0.14, '#0D2B1A');
+  else if(pg==='ppc-performance'){
+    kill('ppc');
+    CH['ppc']=new Chart(document.getElementById('ppc'),{type:'bar',data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep'],datasets:[{data:[400,500,450,600,550,700,650,800,750],backgroundColor:'#004225',borderRadius:4,barPercentage:.4},{data:[200,250,220,300,280,350,320,400,380],backgroundColor:'#6fcf97',borderRadius:4,barPercentage:.4}]},options:{...BASE,scales:{...AX,y:{...AX.y,ticks:{...AX.y.ticks,callback:v=>v+'K'}}}}});
+  }
+  else if(pg==='pl'){
+    kill('plc');
+    CH['plc']=new Chart(document.getElementById('plc'),{type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],datasets:[{data:[32,28,35,40,38,42,36,44,40,38,45,48],borderColor:'#004225',backgroundColor:'rgba(0,66,37,.06)',tension:.4,borderWidth:2.5,pointRadius:0,fill:true},{data:[18,15,20,22,19,24,21,26,23,20,27,30],borderColor:'#6fcf97',backgroundColor:'transparent',tension:.4,borderWidth:1.5,pointRadius:0},{data:[12,10,14,16,13,17,14,19,16,14,18,21],borderColor:'#4caf75',backgroundColor:'transparent',tension:.4,borderWidth:1.5,pointRadius:0,borderDash:[4,4]},{data:[5,8,4,3,6,4,7,5,4,6,3,4],borderColor:'#d94040',backgroundColor:'transparent',tension:.4,borderWidth:1.5,pointRadius:0,borderDash:[2,2]}]},options:{...BASE,scales:{...AX,y:{...AX.y,ticks:{...AX.y.ticks,callback:v=>'$'+v+'K'}}}}});
+  }
+  else if(pg==='inventory-overview'){
+    kill('iac');
+    CH['iac']=new Chart(document.getElementById('iac'),{type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun'],datasets:[{data:[28,22,30,25,20,18],borderColor:'#004225',tension:.4,borderWidth:2,pointRadius:0},{data:[15,18,12,20,24,16],borderColor:'#6fcf97',tension:.4,borderWidth:2,pointRadius:0},{data:[8,10,7,12,9,11],borderColor:'#a8e6c0',tension:.4,borderWidth:1.5,pointRadius:0},{data:[2,3,1,4,2,3],borderColor:'#d94040',tension:.4,borderWidth:1.5,pointRadius:0}]},options:{...BASE,scales:{...AX,y:{...AX.y,ticks:{...AX.y.ticks,callback:v=>v+'K'}}}}});
+  }
+  else if(pg==='inventory-mgmt'){
+    kill('imc');
+    CH['imc']=new Chart(document.getElementById('imc'),{type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],datasets:[{data:[28,32,35,38,42,38,45,50,42,38,44,48],borderColor:'#004225',backgroundColor:'rgba(0,66,37,.06)',tension:.4,borderWidth:2.5,pointRadius:0,fill:true},{data:[22,26,28,32,35,32,38,42,36,32,38,40],borderColor:'#6fcf97',backgroundColor:'transparent',tension:.4,borderWidth:2,pointRadius:0}]},options:{...BASE,scales:{...AX,y:{...AX.y,ticks:{...AX.y.ticks,callback:v=>'$'+v+'K'}}}}});
+  }
 }
+window.addEventListener('load',()=>ip('executive'));
 
-function drawGauge(id, pct, color) {
-  const canvas = document.getElementById(id);
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  ctx.clearRect(0, 0, W, H);
-  const cx = W/2, cy = H - 8, r = Math.min(W, H*2) * 0.42;
-  ctx.strokeStyle = '#E2EAE5'; ctx.lineWidth = 8; ctx.lineCap = 'round';
-  ctx.beginPath(); ctx.arc(cx, cy, r, Math.PI, 0); ctx.stroke();
-  ctx.strokeStyle = color; ctx.lineWidth = 8;
-  ctx.beginPath(); ctx.arc(cx, cy, r, Math.PI, Math.PI + pct * Math.PI); ctx.stroke();
+function formatDate(val){
+  if(!val) return '';
+  const [y,m,d] = val.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return months[parseInt(m)-1]+' '+parseInt(d)+', '+y;
 }
-
-function initPPCPerfCharts() {
-  destroyChart('ppcPerfChart');
-  const ctx = document.getElementById('ppcPerfChart');
-  if (!ctx) return;
-  chartInstances['ppcPerfChart'] = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: months,
-      datasets: [
-        { label: 'Ad Sales', data: randArr(9, 400, 1000), backgroundColor: '#0D2B1A', borderRadius: 3, barPercentage: 0.28 },
-        { label: 'Ad Spend', data: randArr(9, 200, 600), backgroundColor: '#4CAF75', borderRadius: 3, barPercentage: 0.28 },
-        { label: 'Gross Sales', data: randArr(9, 100, 300), backgroundColor: '#D4F1E1', borderRadius: 3, barPercentage: 0.28 }
-      ]
-    },
-    options: { ...defaultOpts, scales: { ...defaultOpts.scales, y: { ...defaultOpts.scales.y, ticks: { ...defaultOpts.scales.y.ticks, callback: v => v + 'K' } } } }
-  });
-}
-
-function initPLCharts() {
-  destroyChart('plChart');
-  const ctx = document.getElementById('plChart');
-  if (!ctx) return;
-  chartInstances['plChart'] = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: ['2025-01','2025-02','2025-03','2025-04','2025-05','2025-06','2025-07','2025-08','2025-09','2025-10','2025-11','2025-12'],
-      datasets: [
-        { label: 'Net Margin', data: [32,28,35,40,38,42,36,44,40,38,45,48], borderColor: '#0D2B1A', backgroundColor: 'rgba(13,43,26,0.06)', tension: 0.4, borderWidth: 2.5, pointRadius: 0, fill: true },
-        { label: 'Paid Media Spend%', data: [18,15,20,22,19,24,21,26,23,20,27,30], borderColor: '#4CAF75', backgroundColor: 'transparent', tension: 0.4, borderWidth: 1.5, pointRadius: 0 },
-        { label: 'FBA Fulfillment%', data: [12,10,14,16,13,17,14,19,16,14,18,21], borderColor: '#6FCF97', backgroundColor: 'transparent', tension: 0.4, borderWidth: 1.5, pointRadius: 0, borderDash: [4,4] },
-        { label: 'Refunds%', data: [5,8,4,3,6,4,7,5,4,6,3,4], borderColor: '#E85555', backgroundColor: 'transparent', tension: 0.4, borderWidth: 1.5, pointRadius: 0, borderDash: [2,2] }
-      ]
-    },
-    options: { ...defaultOpts, scales: { ...defaultOpts.scales, y: { ...defaultOpts.scales.y, ticks: { ...defaultOpts.scales.y.ticks, callback: v => '$' + v + 'K' } } } }
-  });
-}
-
-function initInvOverviewCharts() {
-  destroyChart('invAgeChart');
-  const ctx = document.getElementById('invAgeChart');
-  if (!ctx) return;
-  chartInstances['invAgeChart'] = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: ['Jan','Feb','Mar','Apr','May','Jun'],
-      datasets: [
-        { label: '0-90', data: [28,22,30,25,20,18], borderColor: '#0D2B1A', tension: 0.4, borderWidth: 2, pointRadius: 0, fill: false },
-        { label: '91-180', data: [15,18,12,20,24,16], borderColor: '#4CAF75', tension: 0.4, borderWidth: 2, pointRadius: 0, fill: false },
-        { label: '181-270', data: [8,10,7,12,9,11], borderColor: '#A8E6C0', tension: 0.4, borderWidth: 1.5, pointRadius: 0, fill: false },
-        { label: '365+', data: [2,3,1,4,2,3], borderColor: '#E85555', tension: 0.4, borderWidth: 1.5, pointRadius: 0, fill: false }
-      ]
-    },
-    options: { ...defaultOpts, scales: { ...defaultOpts.scales, y: { ...defaultOpts.scales.y, ticks: { ...defaultOpts.scales.y.ticks, callback: v => v + 'K' } } } }
-  });
-}
-
-function initInvMgmtCharts() {
-  destroyChart('invMgmtChart');
-  const ctx = document.getElementById('invMgmtChart');
-  if (!ctx) return;
-  chartInstances['invMgmtChart'] = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-      datasets: [
-        { label: 'Units Ordered', data: [28,32,35,38,42,38,45,50,42,38,44,48], borderColor: '#0D2B1A', backgroundColor: 'rgba(13,43,26,0.06)', tension: 0.4, borderWidth: 2.5, pointRadius: 0, fill: true },
-        { label: 'Rolling Daily Avg', data: [22,26,28,32,35,32,38,42,36,32,38,40], borderColor: '#4CAF75', backgroundColor: 'transparent', tension: 0.4, borderWidth: 2, pointRadius: 0 }
-      ]
-    },
-    options: { ...defaultOpts, scales: { ...defaultOpts.scales, y: { ...defaultOpts.scales.y, ticks: { ...defaultOpts.scales.y.ticks, callback: v => '$' + v + 'K' } } } }
-  });
-}
-
-// Tag pill interaction
-document.querySelectorAll('.tag-pill').forEach(pill => {
-  pill.addEventListener('click', function() {
-    document.querySelectorAll('.tag-pill').forEach(p => p.classList.remove('active'));
-    this.classList.add('active');
-  });
-});
-
-// Init executive charts on load
-window.addEventListener('load', () => initExecutiveCharts());
 </script>
 </body>
 </html>
